@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>روبلة الأسئلة - تحدي الإجابات المتعددة</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a2f1a 0%, #1a4a2a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            background: rgba(255, 252, 235, 0.98);
+            border-radius: 60px;
+            padding: 30px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+        }
+
+        .game-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .game-title h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #d4af37, #f5b042);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .game-title p {
+            color: #7a5a3a;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-primary { background: #d4af37; color: #2c2b1f; }
+        .btn-success { background: #2a7a4a; color: white; }
+        .btn-warning { background: #e67e22; color: white; }
+        .btn-danger { background: #b34e1a; color: white; }
+        .btn-purple { background: #9b59b6; color: white; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #d4af37;
+            border-radius: 50px;
+            font-size: 1rem;
+            text-align: center;
+            background: white;
+        }
+
+        .players-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .player-card {
+            background: #fff8e7;
+            border-radius: 40px;
+            padding: 20px;
+            border: 2px solid #e6d5b3;
+        }
+        .player-card.current-turn {
+            border: 4px solid #d4af37;
+            background: #fffae6;
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #e6d5b3;
+        }
+        .player-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: #d4af37;
+            padding: 5px 20px;
+            border-radius: 40px;
+        }
+        .player-score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: #2a7a4a;
+            color: white;
+            padding: 5px 18px;
+            border-radius: 50px;
+        }
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .letter-card {
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(145deg, #fff0cc, #ffe0aa);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #b34e1a;
+            border: 1px solid #d4af37;
+        }
+
+        .question-zone {
+            background: linear-gradient(135deg, #ffefcf, #ffe6b3);
+            border-radius: 50px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            border: 3px solid #d4af37;
+        }
+        .question-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #b34e1a;
+            margin: 15px 0;
+        }
+        .timer-box {
+            font-size: 2rem;
+            font-weight: bold;
+            background: #2c5a3a;
+            color: #ffefb9;
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 60px;
+        }
+
+        .answers-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .answers-box {
+            background: #fef3e0;
+            border-radius: 30px;
+            padding: 20px;
+        }
+        .answers-box h3 {
+            color: #b34e1a;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .answers-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            min-height: 100px;
+        }
+        .answer-item {
+            background: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e6d5b3;
+        }
+        .answer-text {
+            font-size: 1rem;
+            flex: 1;
+            text-align: right;
+            word-break: break-word;
+        }
+        .evaluate-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .approve-btn, .reject-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .approve-btn { background: #2a7a4a; color: white; }
+        .reject-btn { background: #b34e1a; color: white; }
+        .approved-badge { color: #2a7a4a; font-weight: bold; }
+        .rejected-badge { color: #b34e1a; font-weight: bold; text-decoration: line-through; }
+        .pending-badge { color: #e67e22; font-weight: bold; }
+
+        .add-answer-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .add-answer-area input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #d4af37;
+            border-radius: 30px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .message-area {
+            background: #e9dbc1;
+            padding: 12px;
+            border-radius: 50px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .winner-banner {
+            background: linear-gradient(135deg, #ffd966, #ffb347);
+            padding: 20px;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 20px;
+            animation: pulse 0.5s;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .waiting-badge {
+            text-align: center;
+            padding: 20px;
+            color: #b34e1a;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 800px) {
+            .players-panel { grid-template-columns: 1fr; }
+            .answers-section { grid-template-columns: 1fr; }
+            .question-text { font-size: 1.3rem; }
+            .letter-card { width: 45px; height: 60px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- شاشة الدخول -->
+    <div id="lobbyScreen" class="screen">
+        <div class="game-title">
+            <h1>🎭 روبلة الأسئلة 🃏</h1>
+            <p>🎯 إجابات متعددة | 30 ثانية للإجابة | 20 نقطة للفوز</p>
+        </div>
+        <div style="max-width: 500px; margin: 0 auto; text-align: center;">
+            <div style="margin: 20px 0;">
+                <input type="text" id="playerNameInput" class="input-field" placeholder="اسمك" value="لاعب">
+            </div>
+            <div style="margin: 20px 0;">
+                <input type="text" id="roomIdInput" class="input-field" placeholder="رمز الغرفة (للدخول)">
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button id="createRoomBtn" class="btn btn-success">✨ إنشاء غرفة جديدة</button>
+                <button id="joinRoomBtn" class="btn btn-warning">🚪 دخول للغرفة</button>
+            </div>
+            <div style="margin-top: 40px; padding: 20px; background: #f5e5c8; border-radius: 40px;">
+                <p><strong>🎮 طريقة اللعب:</strong></p>
+                <p>📌 كل لاعب يحصل على 7 حروف (للتزيين)</p>
+                <p>📌 السؤال نفسه يظهر للجميع</p>
+                <p>⏰ 30 ثانية - يمكنك كتابة عدة إجابات (كل إجابة اضغط إضافة)</p>
+                <p>👥 بعد انتهاء الوقت، كل لاعب يرى إجابات الخصم</p>
+                <p>✅ <strong>كل لاعب يقرر بنفسه قبول أو رفض إجابات الخصم</strong></p>
+                <p>🏆 كل إجابة تقبلها = نقطة للخصم | أول من يصل 20 نقطة يفوز</p>
+                <p>🎮 <strong>المضيف فقط</strong> هو من يبدأ الجولة بضغط "▶️ بدء الجولة"</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" style="display: none;">
+        <div class="game-title">
+            <h1>🎴 روبلة الأسئلة</h1>
+            <p id="roomInfoDisplay" style="cursor:pointer; background:#e6d5b3; display:inline-block; padding:5px 15px; border-radius:30px;">🏠 جاري التحميل...</p>
+        </div>
+
+        <div class="players-panel" id="playersPanel"></div>
+
+        <div class="question-zone">
+            <div class="question-text" id="questionText">...</div>
+            <div class="timer-box" id="timerDisplay">⏱️ 00:30</div>
+        </div>
+
+        <div class="answers-section" id="answersSection">
+            <div class="answers-box" id="myAnswersBox">
+                <h3>📝 إجاباتي</h3>
+                <div id="myAnswersList" class="answers-list">
+                    <div class="waiting-badge">📝 أضف إجاباتك...</div>
+                </div>
+                <div class="add-answer-area">
+                    <input type="text" id="newAnswerInput" placeholder="اكتب إجابة جديدة..." autocomplete="off">
+                    <button id="addAnswerBtn" class="btn btn-primary">➕ إضافة</button>
+                </div>
+                <button id="submitAllAnswersBtn" class="btn btn-success" style="width:100%; margin-top:10px;">⚡ إرسال كل الإجابات</button>
+            </div>
+            <div class="answers-box" id="opponentAnswersBox">
+                <h3>👤 إجابات الخصم</h3>
+                <div id="opponentAnswersList" class="answers-list">
+                    <div class="waiting-badge">⏳ بانتظار إجابات الخصم...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-buttons">
+            <button id="startRoundBtn" class="btn btn-purple" disabled>▶️ بدء الجولة</button>
+            <button id="nextRoundBtn" class="btn btn-primary" disabled>🃟 الجولة التالية</button>
+            <button id="leaveRoomBtn" class="btn btn-danger">🚪 مغادرة الغرفة</button>
+        </div>
+
+        <div id="gameMessage" class="message-area">🎮 مرحباً! بانتظار اكتمال اللاعبين...</div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBjHyON3NjKz2yBxCqwgLftd2trh03HYQc",
+        authDomain: "arabic-game-onlin.firebaseapp.com",
+        databaseURL: "https://arabic-game-onlin-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "arabic-game-onlin",
+        storageBucket: "arabic-game-onlin.firebasestorage.app",
+        messagingSenderId: "406939044821",
+        appId: "1:406939044821:web:daa86a2fa46483363f8b5c"
+    };
+    
+    const QUESTIONS_LIST = [
+        "حاجة تخوّف", "حاجة مقرفة", "حاجة تغضّب", "حاجة تفرح", "حاجة غالية", "حاجة رخيصة",
+        "حيوان", "مدينة", "أكلة", "مشروب", "مهنة", "لون", "اسم", "حاجة في القهوة", "حاجة في البحر",
+        "حاجة سريعة", "حاجة بطيئة", "حاجة كبيرة", "حاجة صغيرة", "حاجة ثقيلة", "حاجة خفيفة",
+        "حاجة غريبة", "حاجة مشهورة", "حاجة تكسر القلب", "حاجة تضحك", "حاجة تبكي", "حاجة تخليك تهرب",
+        "شيء تحبه", "شيء تكرهه", "شيء تتمناه", "شيء تفتقده", "حاجة تقولها بالغلط", "حاجة تندم عليها",
+        "حيوان بحرف ع", "دولة بحرف ق", "أكلة بحرف ش", "اسم بحرف ز", "حاجة في الدار بحرف ب"
+    ];
+    
+    const ALL_LETTERS = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'];
+    
+    let app, database;
+    let currentRoomId = null;
+    let myPlayerId = null;
+    let myName = "";
+    let myLetters = [];
+    let timerInterval = null;
+    let roundActive = false;
+    let canAddAnswers = false;
+    let currentQuestion = "";
+    let myScore = 0, opponentScore = 0;
+    let myAnswers = [];
+    let opponentAnswers = [];
+    let myEvaluation = {};      // تقييمي لإجابات الخصم
+    let opponentEvaluation = {}; // تقييم الخصم لإجاباتي
+    let amIHost = false;
+    
+    try {
+        app = firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        console.log("✅ Firebase connected");
+    } catch(e) { console.error(e); }
+    
+    function getRandomLetters() {
+        const shuffled = [...ALL_LETTERS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, 7);
+    }
+    
+    function getRandomQuestion() {
+        return QUESTIONS_LIST[Math.floor(Math.random() * QUESTIONS_LIST.length)];
+    }
+    
+    function generateRoomId() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+    
+    function showMessage(msg, isError = false) {
+        const msgDiv = document.getElementById("gameMessage");
+        if (msgDiv) {
+            msgDiv.innerHTML = msg;
+            msgDiv.style.background = isError ? "#d48f6a" : "#e9dbc1";
+            setTimeout(() => {
+                if (document.getElementById("gameMessage")?.innerHTML === msg)
+                    msgDiv.style.background = "#e9dbc1";
+            }, 3000);
+        }
+    }
+    
+    function updatePlayersUI(players) {
+        const container = document.getElementById("playersPanel");
+        if (!container) return;
+        let html = "";
+        for (let [id, p] of Object.entries(players)) {
+            if (p && p.name) {
+                const isMe = (id === myPlayerId);
+                const letters = p.letters || [];
+                const score = p.score || 0;
+                html += `
+                    <div class="player-card ${isMe ? 'current-turn' : ''}">
+                        <div class="player-header">
+                            <span class="player-name">${p.name} ${isMe ? "👈 أنت" : ""}</span>
+                            <span class="player-score">⭐ ${score}</span>
+                        </div>
+                        <div class="letters-container">
+                            ${letters.map(l => `<div class="letter-card">${l}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        container.innerHTML = html;
+        const playerCount = Object.keys(players).filter(k => players[k]?.joined).length;
+        document.getElementById("roomInfoDisplay").innerHTML = `🏠 الغرفة: <strong onclick="copyRoomCode()" style="cursor:pointer">${currentRoomId} 📋</strong> | 👥 ${playerCount}/2 لاعب`;
+        
+        const startBtn = document.getElementById("startRoundBtn");
+        if (startBtn) {
+            if (amIHost && playerCount === 2 && !roundActive && !timerInterval) {
+                startBtn.disabled = false;
+                startBtn.style.opacity = "1";
+            } else {
+                startBtn.disabled = true;
+                startBtn.style.opacity = "0.6";
+            }
+        }
+    }
+    
+    function updateMyAnswersUI() {
+        const container = document.getElementById("myAnswersList");
+        if (!container) return;
+        if (myAnswers.length === 0) {
+            container.innerHTML = '<div class="waiting-badge">📝 أضف إجاباتك...</div>';
+            return;
+        }
+        container.innerHTML = myAnswers.map((ans, idx) => `
+            <div class="answer-item">
+                <span class="answer-text">${escapeHtml(ans)}</span>
+                <button class="btn-danger" style="padding:3px 10px;" onclick="removeAnswer(${idx})">✖</button>
+            </div>
+        `).join('');
+    }
+    
+    function escapeHtml(text) {
+        return text.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function updateOpponentAnswersUI() {
+        const container = document.getElementById("opponentAnswersList");
+        if (!container) return;
+        if (!opponentAnswers || opponentAnswers.length === 0) {
+            container.innerHTML = '<div class="waiting-badge">⏳ بانتظار إجابات الخصم...</div>';
+            return;
+        }
+        container.innerHTML = opponentAnswers.map((ans, idx) => {
+            const evaluation = myEvaluation[idx];
+            let statusHtml = "";
+            if (evaluation === undefined && !roundActive && !canAddAnswers) {
+                statusHtml = `
+                    <div class="evaluate-buttons">
+                        <button class="approve-btn" onclick="evaluateOpponentAnswer(${idx}, true)">✅ قبول</button>
+                        <button class="reject-btn" onclick="evaluateOpponentAnswer(${idx}, false)">❌ رفض</button>
+                    </div>
+                `;
+            } else if (evaluation === true) {
+                statusHtml = '<span class="approved-badge">✓ مقبولة</span>';
+            } else if (evaluation === false) {
+                statusHtml = '<span class="rejected-badge">✗ مرفوضة</span>';
+            } else {
+                statusHtml = '<span class="pending-badge">⏳ بانتظار التقييم</span>';
+            }
+            return `
+                <div class="answer-item">
+                    <span class="answer-text">${escapeHtml(ans)}</span>
+                    <div>${statusHtml}</div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function updateMyAnswersEvaluationUI() {
+        // تحديث عرض تقييم الخصم لإجاباتي (في صندوق إجاباتي)
+        const container = document.getElementById("myAnswersList");
+        if (!container || myAnswers.length === 0) return;
+        
+        // إذا كان هناك تقييم من الخصم، نعرضه
+        if (Object.keys(opponentEvaluation).length > 0) {
+            const evaluationBadges = myAnswers.map((ans, idx) => {
+                const eval = opponentEvaluation[idx];
+                if (eval === true) return `<span style="color:green; font-size:0.8rem;">✓ مقبولة</span>`;
+                if (eval === false) return `<span style="color:red; font-size:0.8rem;">✗ مرفوضة</span>`;
+                return `<span style="color:#e67e22; font-size:0.8rem;">⏳ بانتظار التقييم</span>`;
+            });
+            
+            const items = container.querySelectorAll('.answer-item');
+            items.forEach((item, idx) => {
+                const existingBadge = item.querySelector('.eval-badge');
+                if (existingBadge) existingBadge.remove();
+                const badgeSpan = document.createElement('div');
+                badgeSpan.className = 'eval-badge';
+                badgeSpan.style.marginLeft = '10px';
+                badgeSpan.innerHTML = evaluationBadges[idx];
+                item.appendChild(badgeSpan);
+            });
+        }
+    }
+    
+    window.removeAnswer = (idx) => {
+        if (!canAddAnswers) { showMessage("⚠️ لا يمكن تعديل الإجابات الآن!", true); return; }
+        myAnswers.splice(idx, 1);
+        updateMyAnswersUI();
+        saveMyAnswersToFirebase();
+    };
+    
+    window.evaluateOpponentAnswer = async (idx, approved) => {
+        if (roundActive || canAddAnswers) {
+            showMessage("⚠️ لم ينته الوقت بعد! انتظر حتى انتهاء الجولة", true);
+            return;
+        }
+        if (myEvaluation[idx] !== undefined) {
+            showMessage("⚠️ لقد قيمت هذه الإجابة بالفعل!", true);
+            return;
+        }
+        
+        myEvaluation[idx] = approved;
+        updateOpponentAnswersUI();
+        
+        // حفظ التقييم في Firebase
+        await database.ref(`rooms/${currentRoomId}/gameState/evaluations/${myPlayerId}/${idx}`).set(approved);
+        
+        // احتساب النقاط فوراً (كل لاعب يقيّم لوحده)
+        if (approved) {
+            const opponentId = myPlayerId === "player1" ? "player2" : "player1";
+            const currentScore = opponentId === "player1" ? 
+                (await database.ref(`rooms/${currentRoomId}/players/player1/score`).get()).val() || 0 :
+                (await database.ref(`rooms/${currentRoomId}/players/player2/score`).get()).val() || 0;
+            const newScore = currentScore + 1;
+            await database.ref(`rooms/${currentRoomId}/players/${opponentId}/score`).set(newScore);
+            showMessage(`✅ قبلت إجابة "${opponentAnswers[idx]}"! +1 نقطة للخصم`);
+            
+            // تحديث النقاط محلياً
+            if (opponentId === "player1") opponentScore = newScore;
+            else opponentScore = newScore;
+            
+            // التحقق من الفوز
+            if (opponentScore >= 20) {
+                const oppName = opponentId === "player1" ? 
+                    (await database.ref(`rooms/${currentRoomId}/players/player1/name`).get()).val() :
+                    (await database.ref(`rooms/${currentRoomId}/players/player2/name`).get()).val();
+                await database.ref(`rooms/${currentRoomId}/gameState/gameWinner`).set(opponentId);
+                showMessage(`🏆 فاز ${oppName} باللعبة! 🏆`);
+                document.getElementById("nextRoundBtn").disabled = true;
+                document.getElementById("startRoundBtn").disabled = true;
+            }
+        } else {
+            showMessage(`❌ رفضت إجابة "${opponentAnswers[idx]}"! لا نقطة للخصم`);
+        }
+        
+        // تحديث واجهة النقاط
+        const playersSnapshot = await database.ref(`rooms/${currentRoomId}/players`).get();
+        updatePlayersUI(playersSnapshot.val());
+    };
+    
+    async function saveMyAnswersToFirebase() {
+        await database.ref(`rooms/${currentRoomId}/gameState/answers/${myPlayerId}`).set(myAnswers);
+    }
+    
+    function addAnswer() {
+        if (!canAddAnswers) { 
+            showMessage("⚠️ لا يمكن إضافة إجابات الآن! الجولة لم تبدأ بعد", true); 
+            return; 
+        }
+        const input = document.getElementById("newAnswerInput");
+        const answer = input.value.trim();
+        if (!answer) { showMessage("✏️ اكتب إجابة!", true); return; }
+        myAnswers.push(answer);
+        updateMyAnswersUI();
+        input.value = "";
+        input.focus();
+        saveMyAnswersToFirebase();
+    }
+    
+    async function submitAllAnswers() {
+        if (!canAddAnswers) { showMessage("⚠️ لا يمكن إرسال الإجابات الآن!", true); return; }
+        if (myAnswers.length === 0) { showMessage("⚠️ أضف إجابة واحدة على الأقل!", true); return; }
+        await saveMyAnswersToFirebase();
+        canAddAnswers = false;
+        document.getElementById("addAnswerBtn").disabled = true;
+        document.getElementById("submitAllAnswersBtn").disabled = true;
+        document.getElementById("newAnswerInput").disabled = true;
+        showMessage("✅ تم إرسال إجاباتك! بانتظار انتهاء الوقت وتقييم الخصم");
+    }
+    
+    function startRound() {
+        if (timerInterval) clearInterval(timerInterval);
+        roundActive = true;
+        canAddAnswers = true;
+        myAnswers = [];
+        opponentAnswers = [];
+        myEvaluation = {};
+        opponentEvaluation = {};
+        
+        document.getElementById("addAnswerBtn").disabled = false;
+        document.getElementById("submitAllAnswersBtn").disabled = false;
+        document.getElementById("newAnswerInput").disabled = false;
+        document.getElementById("nextRoundBtn").disabled = true;
+        document.getElementById("startRoundBtn").disabled = true;
+        
+        updateMyAnswersUI();
+        updateOpponentAnswersUI();
+        
+        let timeLeft = 30;
+        const timerElement = document.getElementById("timerDisplay");
+        timerInterval = setInterval(() => {
+            if (!roundActive) return;
+            timeLeft--;
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerElement.innerHTML = `⏱️ ${mins}:${secs.toString().padStart(2,'0')}`;
+            database.ref(`rooms/${currentRoomId}/gameState/timeLeft`).set(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                endRound();
+            }
+        }, 1000);
+        showMessage(`⏰ بدأت الجولة! السؤال: "${currentQuestion}" | لديك 30 ثانية لإضافة إجابات`);
+    }
+    
+    async function endRound() {
+        roundActive = false;
+        canAddAnswers = false;
+        document.getElementById("addAnswerBtn").disabled = true;
+        document.getElementById("submitAllAnswersBtn").disabled = true;
+        document.getElementById("newAnswerInput").disabled = true;
+        await database.ref(`rooms/${currentRoomId}/gameState/timeEnded`).set(true);
+        await database.ref(`rooms/${currentRoomId}/gameState/roundActive`).set(false);
+        showMessage("⏰ انتهى الوقت! قم بتقييم إجابات الخصم");
+        updateOpponentAnswersUI();
+    }
+    
+    function listenToRoom() {
+        const roomRef = database.ref(`rooms/${currentRoomId}`);
+        roomRef.on("value", (snapshot) => {
+            const room = snapshot.val();
+            if (!room) return;
+            updatePlayersUI(room.players);
+            const gameState = room.gameState;
+            if (gameState) {
+                if (gameState.currentQuestion) {
+                    currentQuestion = gameState.currentQuestion;
+                    document.getElementById("questionText").innerText = currentQuestion;
+                }
+                
+                if (gameState.roundActive !== undefined) {
+                    roundActive = gameState.roundActive;
+                    canAddAnswers = gameState.roundActive && !gameState.timeEnded;
+                    
+                    const addBtn = document.getElementById("addAnswerBtn");
+                    const submitBtn = document.getElementById("submitAllAnswersBtn");
+                    const answerInput = document.getElementById("newAnswerInput");
+                    
+                    if (addBtn) addBtn.disabled = !canAddAnswers;
+                    if (submitBtn) submitBtn.disabled = !canAddAnswers;
+                    if (answerInput) answerInput.disabled = !canAddAnswers;
+                }
+                
+                if (gameState.timeLeft !== undefined && gameState.roundActive) {
+                    const mins = Math.floor(gameState.timeLeft / 60);
+                    const secs = gameState.timeLeft % 60;
+                    document.getElementById("timerDisplay").innerHTML = `⏱️ ${mins}:${secs.toString().padStart(2,'0')}`;
+                }
+                
+                const opponentId = myPlayerId === "player1" ? "player2" : "player1";
+                if (gameState.answers && gameState.answers[opponentId]) {
+                    opponentAnswers = gameState.answers[opponentId] || [];
+                    updateOpponentAnswersUI();
+                }
+                
+                if (gameState.evaluations && gameState.evaluations[opponentId]) {
+                    opponentEvaluation = gameState.evaluations[opponentId] || {};
+                    updateMyAnswersEvaluationUI();
+                }
+                
+                if (gameState.roundEnded) {
+                    document.getElementById("nextRoundBtn").disabled = false;
+                }
+                
+                if (gameState.gameWinner) {
+                    const winnerName = room.players[gameState.gameWinner]?.name;
+                    if (!document.querySelector(".winner-banner")) {
+                        const winnerDiv = document.createElement("div");
+                        winnerDiv.className = "winner-banner";
+                        winnerDiv.innerHTML = `🏆 الفائز هو ${winnerName} 🏆<br>اضغط "مغادرة الغرفة" للعب مرة أخرى`;
+                        document.querySelector(".answers-section").after(winnerDiv);
+                    }
+                    document.getElementById("nextRoundBtn").disabled = true;
+                    document.getElementById("startRoundBtn").disabled = true;
+                }
+            }
+        });
+    }
+    
+    async function startRoundByHost() {
+        if (!amIHost) {
+            showMessage("⚠️ فقط المضيف يمكنه بدء الجولة!", true);
+            return;
+        }
+        const snapshot = await database.ref(`rooms/${currentRoomId}`).get();
+        const room = snapshot.val();
+        const playerCount = Object.keys(room.players).filter(k => room.players[k]?.joined).length;
+        if (playerCount !== 2) {
+            showMessage("⚠️ يجب أن يكون هناك لاعبين لبدء الجولة!", true);
+            return;
+        }
+        currentQuestion = getRandomQuestion();
+        await database.ref(`rooms/${currentRoomId}/gameState`).update({
+            currentQuestion: currentQuestion,
+            roundActive: true,
+            roundEnded: false,
+            timeEnded: false,
+            answers: { player1: [], player2: [] },
+            evaluations: { player1: {}, player2: {} },
+            timeLeft: 30,
+            gameWinner: null
+        });
+        startRound();
+    }
+    
+    async function nextRound() {
+        myLetters = getRandomLetters();
+        currentQuestion = getRandomQuestion();
+        const updates = {
+            [`rooms/${currentRoomId}/players/${myPlayerId}/letters`]: myLetters,
+            [`rooms/${currentRoomId}/players/${myPlayerId === "player1" ? "player2" : "player1"}/letters`]: getRandomLetters(),
+            [`rooms/${currentRoomId}/gameState`]: {
+                currentQuestion: currentQuestion,
+                roundActive: false,
+                roundEnded: false,
+                timeEnded: false,
+                answers: { player1: [], player2: [] },
+                evaluations: { player1: {}, player2: {} },
+                timeLeft: 30,
+                gameWinner: null
+            }
+        };
+        await database.ref().update(updates);
+        document.getElementById("nextRoundBtn").disabled = true;
+        showMessage(`🃟 جولة جديدة! اضغط "بدء الجولة" للبدء`);
+        if (amIHost) {
+            document.getElementById("startRoundBtn").disabled = false;
+        }
+    }
+    
+    async function leaveRoom() {
+        if (currentRoomId && database) {
+            try {
+                await database.ref(`rooms/${currentRoomId}/players/${myPlayerId}`).remove();
+                const snapshot = await database.ref(`rooms/${currentRoomId}/players`).get();
+                const players = snapshot.val();
+                if (!players || Object.keys(players).length === 0) await database.ref(`rooms/${currentRoomId}`).remove();
+                database.ref(`rooms/${currentRoomId}`).off();
+            } catch(e) {}
+        }
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById("lobbyScreen").style.display = "block";
+        document.getElementById("gameScreen").style.display = "none";
+        currentRoomId = null;
+    }
+    
+    document.getElementById("createRoomBtn").onclick = async () => {
+        myName = document.getElementById("playerNameInput").value.trim() || "لاعب";
+        const newRoomId = generateRoomId();
+        currentRoomId = newRoomId;
+        myPlayerId = "player1";
+        amIHost = true;
+        myLetters = getRandomLetters();
+        currentQuestion = getRandomQuestion();
+        await database.ref(`rooms/${newRoomId}`).set({
+            roomId: newRoomId,
+            players: { player1: { name: myName, score: 0, joined: true, letters: myLetters }, player2: null },
+            gameState: { currentQuestion: currentQuestion, roundActive: false, roundEnded: false, timeEnded: false, answers: { player1: [], player2: [] }, evaluations: { player1: {}, player2: {} }, timeLeft: 30, gameWinner: null },
+            createdAt: Date.now()
+        });
+        listenToRoom();
+        document.getElementById("lobbyScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
+        document.getElementById("roomInfoDisplay").innerHTML = `🏠 الغرفة: <strong onclick="copyRoomCode()" style="cursor:pointer">${newRoomId} 📋</strong> | 👥 في انتظار لاعب ثاني...`;
+        showMessage(`✅ تم إنشاء الغرفة! رمز الغرفة: ${newRoomId} | أنت المضيف`);
+    };
+    
+    document.getElementById("joinRoomBtn").onclick = async () => {
+        let roomId = document.getElementById("roomIdInput").value.trim().toUpperCase();
+        if (!roomId) { alert("الرجاء إدخال رمز الغرفة"); return; }
+        myName = document.getElementById("playerNameInput").value.trim() || "لاعب";
+        currentRoomId = roomId;
+        myPlayerId = "player2";
+        amIHost = false;
+        myLetters = getRandomLetters();
+        const roomRef = database.ref(`rooms/${roomId}`);
+        const snapshot = await roomRef.get();
+        if (!snapshot.exists()) { alert("❌ الغرفة غير موجودة!"); return; }
+        const room = snapshot.val();
+        if (room.players.player2?.joined) { alert("❌ الغرفة ممتلئة!"); return; }
+        await roomRef.child(`players/player2`).set({ name: myName, score: 0, joined: true, letters: myLetters });
+        listenToRoom();
+        document.getElementById("lobbyScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
+        showMessage(`✅ دخلت الغرفة ${roomId} بنجاح!`);
+    };
+    
+    document.getElementById("addAnswerBtn").onclick = addAnswer;
+    document.getElementById("submitAllAnswersBtn").onclick = submitAllAnswers;
+    document.getElementById("startRoundBtn").onclick = startRoundByHost;
+    document.getElementById("nextRoundBtn").onclick = nextRound;
+    document.getElementById("leaveRoomBtn").onclick = leaveRoom;
+    
+    document.getElementById("newAnswerInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addAnswer();
+        }
+    });
+    
+    window.copyRoomCode = () => {
+        if (currentRoomId) {
+            navigator.clipboard.writeText(currentRoomId);
+            showMessage("✅ تم نسخ رمز الغرفة: " + currentRoomId);
+        }
+    };
+</script>
+</body>
+</html>
