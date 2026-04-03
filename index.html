@@ -2,76 +2,198 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تحدي الـ 15 نقطة - نسخة الأسئلة الجديدة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تحدي الـ 15 نقطة - نسخة الهاتف</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --accent: #ff7675; --main: #6c5ce7; --bg: #0f172a; --success: #55efc4; --danger: #ff4757; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 10px; overflow-x: hidden; }
-        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; max-width: 900px; margin: 10px auto; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); }
-        .timer { font-size: 45px; font-weight: bold; color: var(--accent); }
-        .room-info { background: #1e293b; padding: 10px; border-radius: 50px; display: inline-flex; align-items: center; gap: 15px; margin-bottom: 15px; border: 1px solid var(--main); }
-        .btn-copy { background: var(--main); color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .question-box { background: #6c5ce7; padding: 20px; border-radius: 12px; margin: 15px 0; font-size: 22px; font-weight: bold; border-bottom: 4px solid #4834d4; line-height: 1.5; }
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid #334155; min-height: 180px; }
-        .ans-item { background: #1e293b; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--main); }
-        .letter-item { display: inline-block; background: #4834d4; margin: 2px; padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 18px; }
-        input { padding: 15px; border-radius: 10px; border: 2px solid var(--main); width: 70%; background: #1e293b; color: white; font-size: 18px; outline: none; }
-        .btn { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; margin: 5px; }
-        .btn-send { background: var(--success); width: 22%; color: #000; font-size: 18px; }
-        .btn-complete { background: #f1c40f; color: #000; width: 100%; font-size: 22px; margin-top: 20px; box-shadow: 0 4px 0 #c49b08; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            text-align: center; 
+            margin: 0; 
+            padding: 10px; 
+            touch-action: manipulation;
+        }
+
+        .card { 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 20px; 
+            max-width: 500px; 
+            margin: 5px auto; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(15px); 
+        }
+
+        .timer { font-size: 35px; font-weight: bold; color: var(--accent); margin: 5px 0; }
+        
+        .room-info { 
+            background: #1e293b; 
+            padding: 8px 15px; 
+            border-radius: 50px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            margin-bottom: 10px; 
+            font-size: 14px;
+            border: 1px solid var(--main); 
+        }
+
+        .question-box { 
+            background: var(--main); 
+            padding: 15px; 
+            border-radius: 15px; 
+            margin: 10px 0; 
+            font-size: 18px; 
+            font-weight: bold; 
+            line-height: 1.4;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        /* تحسين الشبكة للهاتف */
+        .grid-layout { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+        }
+
+        .box { 
+            background: rgba(0,0,0,0.3); 
+            padding: 12px; 
+            border-radius: 15px; 
+            border: 1px solid #334155; 
+            min-height: 120px; 
+        }
+
+        .ans-item { 
+            background: #1e293b; 
+            padding: 8px; 
+            margin: 5px 0; 
+            border-radius: 8px; 
+            font-size: 14px;
+            display: flex; 
+            justify-content: space-between; 
+            border-right: 3px solid var(--main); 
+        }
+
+        .letter-item { 
+            display: inline-block; 
+            background: #4834d4; 
+            margin: 2px; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            font-size: 16px; 
+        }
+
+        /* تحسين منطقة الإدخال */
+        .input-group {
+            display: flex;
+            gap: 5px;
+            position: sticky;
+            bottom: 10px;
+        }
+
+        input { 
+            padding: 12px; 
+            border-radius: 12px; 
+            border: 2px solid var(--main); 
+            flex: 1; 
+            background: #1e293b; 
+            color: white; 
+            font-size: 16px; 
+            outline: none; 
+        }
+
+        .btn { 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: transform 0.1s;
+        }
+        
+        .btn:active { transform: scale(0.95); }
+
+        .btn-send { background: var(--success); color: #000; min-width: 80px; }
+        
+        .btn-complete { 
+            background: #f1c40f; 
+            color: #000; 
+            width: 100%; 
+            font-size: 20px; 
+            margin-top: 10px; 
+        }
+
         .hidden { display: none !important; }
 
-        /* لافتات النهاية والمراجعة */
-        #result-overlay, #review-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; justify-content:center; align-items:center; backdrop-filter: blur(10px); }
-        .result-card { background:#1e293b; padding:40px; border-radius:30px; border:3px solid var(--main); max-width:400px; width:90%; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { from {transform:scale(0.5); opacity:0;} to {transform:scale(1); opacity:1;} }
-        .emoji-big { font-size: 90px; display:block; margin-bottom:10px; }
-        .review-list { text-align: right; max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        /* لافتات الهاتف */
+        #result-overlay, #review-overlay { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background:rgba(0,0,0,0.9); z-index:10000; 
+            display:flex; justify-content:center; align-items:center; 
+            padding: 20px;
+        }
+
+        .result-card { 
+            background:#1e293b; padding:25px; border-radius:25px; 
+            border:2px solid var(--main); width:100%; max-width:350px; 
+        }
+
+        .emoji-big { font-size: 60px; display:block; }
+        
+        .review-list { text-align: right; max-height: 250px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
     <div id="lobby" class="card">
-        <h2>⚔️ تحدي الـ 15 نقطة</h2>
-        <p>أدخل الكود أو أنشئ غرفة جديدة</p>
-        <input type="number" id="roomInput" placeholder="كود الغرفة">
-        <br><br>
-        <button class="btn" style="background:var(--main); color:white; width:220px;" onclick="createRoom()">إنشاء غرفة ودخول 🚀</button>
-        <button class="btn" style="background:#00cec9; color:white; width:220px; margin-top:10px;" onclick="setupRoom('guest')">انضمام لصديق 🔗</button>
+        <h2 style="margin-top:0">⚔️ تحدي الـ 15</h2>
+        <p style="font-size:14px; opacity:0.8">أدخل الكود أو أنشئ غرفة</p>
+        <input type="number" id="roomInput" placeholder="كود الغرفة" pattern="\[0-9]*" inputmode="numeric">
+        <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+            <button class="btn" style="background:var(--main); color:white;" onclick="createRoom()">إنشاء غرفة جديدة 🚀</button>
+            <button class="btn" style="background:#00cec9; color:white;" onclick="setupRoom('guest')">انضمام لصديق 🔗</button>
+        </div>
     </div>
 
     <div id="game-screen" class="card hidden">
         <div class="room-info">
-            <span>كود الغرفة: <strong id="roomCodeText">....</strong></span>
-            <button class="btn-copy" id="copyBtn" onclick="copyCode()">نسخ الكود 📋</button>
+            <span>الكود: <strong id="roomCodeText">....</strong></span>
+            <button style="background:none; border:none; color:var(--success); font-size:12px;" onclick="copyCode()">نسخ 📋</button>
         </div>
 
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <div style="font-size:20px">نقاطي: <span id="my-score" style="color:gold">0</span>/15</div>
+        <div style="display:flex; justify-content: space-around; font-weight:bold; font-size:14px;">
+            <div style="color:var(--success)">أنا: <span id="my-score">0</span></div>
             <div id="timer-display" class="timer">30</div>
-            <div style="font-size:20px">الخصم: <span id="opp-score" style="color:gold">0</span>/15</div>
+            <div style="color:var(--accent)">الخصم: <span id="opp-score">0</span></div>
         </div>
 
-        <div id="question-area" class="question-box">جاري تحميل السؤال...</div>
+        <div id="question-area" class="question-box">السؤال سيظهر هنا...</div>
 
         <div class="grid-layout">
             <div class="box">
                 <small>حروفي ✨</small><div id="my-letters"></div>
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <div id="my-ans-list"></div>
+                <div id="my-ans-list" style="margin-top:10px"></div>
             </div>
             <div class="box">
                 <small>تقييم إجابات الخصم 👤</small>
                 <div id="opp-letters"></div>
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <div id="voting-panel"></div>
+                <div id="voting-panel" style="margin-top:10px"></div>
             </div>
         </div>
 
-        <div id="action-area">
-            <input type="text" id="ansInput" placeholder="اكتب إجابتك هنا...">
+        <div id="action-area" class="input-group">
+            <input type="text" id="ansInput" placeholder="أجب هنا..." autocomplete="off">
             <button class="btn btn-send" onclick="submitAns()">إرسال</button>
         </div>
 
@@ -83,29 +205,32 @@
     <div id="result-overlay" class="hidden">
         <div class="result-card">
             <div id="win-ui" class="hidden">
-                <span class="emoji-big">🎉💪</span>
-                <h1 style="color:var(--success)">مبروك! لقد فزت</h1>
+                <span class="emoji-big">🎉</span>
+                <h2 style="color:var(--success)">بطل! فزت</h2>
             </div>
             <div id="lose-ui" class="hidden">
-                <span class="emoji-big">😢😭</span>
-                <h1 style="color:var(--danger)">حظاً أوفر.. خسرت</h1>
+                <span class="emoji-big">😢</span>
+                <h2 style="color:var(--danger)">خسرت الجولة</h2>
             </div>
-            <button class="btn" style="background:var(--main); color:white; width:100%" onclick="resetGameFull()">🔄 جولة جديدة (للمضيف)</button>
-            <button class="btn" style="background:#4834d4; color:white; width:100%" onclick="showReview()">📝 مراجعة الإجابات</button>
-            <button class="btn" style="background:white; color:black; width:100%" onclick="location.reload()">الخروج</button>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">
+                <button class="btn" style="background:var(--main); color:white;" onclick="resetGameFull()">🔄 جولة جديدة</button>
+                <button class="btn" style="background:#4834d4; color:white;" onclick="showReview()">📝 كشف الأجوبة</button>
+                <button class="btn" style="background:white; color:black;" onclick="location.reload()">خروج</button>
+            </div>
         </div>
     </div>
 
     <div id="review-overlay" class="hidden">
         <div class="result-card">
-            <h3>🧐 مراجعة الإجابات</h3>
+            <h3 style="margin-top:0">الأجوبة السابقة</h3>
             <div id="review-list" class="review-list"></div>
-            <button class="btn" style="background:var(--danger); color:white; width:100%; margin-top:15px;" onclick="document.getElementById('review-overlay').classList.add('hidden')">إغلاق ✖️</button>
+            <button class="btn" style="background:var(--danger); color:white; width:100%; margin-top:15px;" onclick="document.getElementById('review-overlay').classList.add('hidden')">رجوع</button>
         </div>
     </div>
 
 <script>
-    const QUESTIONS_BANK = ["واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅", "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡", "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣", "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑", "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬", "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸", "وش هو أتعس فطور فالعالم؟ 🥲", "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂", "وش الحاجة لي تخليك تضحك بلا سبب؟", "إذا تشوف روحك في المنام، وش تقول لنفسك؟ 😵", "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡", "وش الحاجة لي دايماً تكون “غالية بزاف”؟ 💰", "وش أكثر حاجة تتقال في الأعراس؟ 💃", "وش الحاجة لي نكذبو فيها كامل؟ 🤥", "وش الحاجة لي كل واحد يقول “غدوة نبدأ فيها” وما يبدأش؟ 😴", "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻", "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒", "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫", "وش الحاجة لي كل واحد يدير فيها روحو فاهم؟ 😏", "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒", "إذا صاحبك تبدل وصار غني، وش أول حاجة تطلبها منو؟ 😂", "وش الحاجة لي ما تقبلش تديرها قدام الناس؟ 🙈", "إذا يعطيولك مليار باش تدير حاجة محرجة، وش هي؟ 💰", "وش الحاجة لي لو كانت إنسان، تكرهها؟ 😆", "وش الحاجة لي دايماً تضيعها؟ 🔍", "حاجة تاكلها بزاف؟ 🍟", "اسم يخوف؟ 😨", "صوت مزعج؟ 🔊", "كلمة يقولها بزاف؟", "إذا واحد قالك “نحبك” بالغلط، وش ترد؟ 🤣", "وش أسوأ هدية ممكن تجيك؟ 🎁", "وش أكثر كلمة تتقال في الكورة؟ ⚽", "وش الحاجة لي دايماً تضيع في الدار؟ 🔑"];
+    // نفس منطق البرمجة السابق مع تحسينات طفيفة للهاتف
+    const QUESTIONS_BANK = ["واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅", "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡", "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣", "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑", "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬", "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸", "وش هو أتعس فطور فالعالم؟ 🥲", "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂", "وش الحاجة لي تخليك تضحك بلا سبب؟", "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡", "وش الحاجة لي دايماً تكون “غالية بزاف”؟ 💰", "وش أكثر حاجة تتقال في الأعراس؟ 💃", "وش الحاجة لي نكذبو فيها كامل؟ 🤥", "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻", "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒", "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫", "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒", "وش الجملة لي دايماً تسمعها من الأم؟ 👩", "وش أكثر كلمة تتقال في الكورة؟ ⚽", "وش الحاجة لي دايماً تضيع في الدار؟ 🔑"];
 
     const firebaseConfig = {
         apiKey: "AIzaSyCTKYD680Jdbl0azC9RTtuKZBaLX2uU_Ck",
@@ -128,16 +253,9 @@
         setupRoom('host');
     }
 
-    function copyCode() {
-        navigator.clipboard.writeText(rId);
-        const btn = document.getElementById('copyBtn');
-        btn.innerText = "تم النسخ! ✅";
-        setTimeout(() => btn.innerText = "نسخ الكود 📋", 2000);
-    }
-
     function setupRoom(role) {
         rId = document.getElementById('roomInput').value;
-        if(!rId) return alert("أدخل الكود أولاً");
+        if(!rId) return alert("أدخل كود الغرفة");
         myRole = role; oppRole = (role === 'host') ? 'guest' : 'host';
         document.getElementById('roomCodeText').innerText = rId;
 
@@ -174,11 +292,11 @@
                 document.getElementById('result-overlay').classList.add('hidden');
             }
 
-            document.getElementById('question-area').innerText = "السؤال: " + d.q;
+            document.getElementById('question-area').innerText = d.q;
             renderL('my-letters', d[myRole+'L']); renderL('opp-letters', d[oppRole+'L']);
 
             document.getElementById('my-ans-list').innerHTML = (d.ans && d.ans[myRole] || []).map(a => `
-                <div class="ans-item"><span>${a.text}</span><small style="color:${a.status==='accepted'?'var(--success)':'#888'}">${a.status==='accepted'?'✅':a.status==='rejected'?'❌':'⏳'}</small></div>
+                <div class="ans-item"><span>${a.text}</span><small>${a.status==='accepted'?'✅':a.status==='rejected'?'❌':'⏳'}</small></div>
             `).join('');
 
             if(d.status === 'playing') {
@@ -198,7 +316,7 @@
     }
 
     function resetGameFull() {
-        if(myRole !== 'host') return alert("المضيف فقط يمكنه تصفير اللعبة!");
+        if(myRole !== 'host') return alert("المضيف فقط يعيد اللعبة");
         db.ref('rooms/'+rId).update({
             scores: {host:0, guest:0}, ans: {host:[], guest:[]},
             timeLeft: 30, status: 'playing',
@@ -209,9 +327,9 @@
 
     function showReview() {
         const d = lastSnap; if(!d) return;
-        let html = "<b>إجاباتـي:</b><br>";
+        let html = "<b>أجوبتي:</b><br>";
         (d.ans[myRole] || []).forEach(a => html += `<div class='ans-item'>${a.text} <span>${a.status==='accepted'?'✅':'❌'}</span></div>`);
-        html += "<br><b>إجابات الخصم:</b><br>";
+        html += "<br><b>أجوبة الخصم:</b><br>";
         (d.ans[oppRole] || []).forEach(a => html += `<div class='ans-item'>${a.text} <span>${a.status==='accepted'?'✅':'❌'}</span></div>`);
         document.getElementById('review-list').innerHTML = html;
         document.getElementById('review-overlay').classList.remove('hidden');
@@ -230,18 +348,18 @@
             let list = s.val() || [];
             list.push({ text: inp.value, status: 'pending' });
             db.ref(`rooms/${rId}/ans/${myRole}`).set(list);
-            inp.value = ""; inp.focus();
+            inp.value = "";
         });
     }
 
     function renderVotingList(list) {
         const container = document.getElementById('voting-panel');
-        container.innerHTML = "<h4>قيّم إجابات الخصم:</h4>";
+        container.innerHTML = "<small>اضغط للتقييم:</small><br>";
         (list || []).forEach((ans, index) => {
             if(ans.status !== 'pending') return;
             container.innerHTML += `<div class="ans-item"><span>${ans.text}</span> 
-                <div><button class="btn" style="background:var(--success); padding:5px 10px" onclick="vote('${index}', 'accepted')">✅</button>
-                <button class="btn" style="background:var(--danger); padding:5px 10px" onclick="vote('${index}', 'rejected')">❌</button></div></div>`;
+                <div><button class="btn" style="background:var(--success);padding:2px 8px" onclick="vote('${index}','accepted')">✅</button>
+                <button class="btn" style="background:var(--danger);padding:2px 8px" onclick="vote('${index}','rejected')">❌</button></div></div>`;
         });
     }
 
@@ -259,6 +377,7 @@
 
     function generateLetters() { return Array.from({length:7}, () => alpha[Math.floor(Math.random()*alpha.length)]); }
     function renderL(id, list) { document.getElementById(id).innerHTML = (list || []).map(l => `<span class="letter-item">${l}</span>`).join(''); }
+    function copyCode() { navigator.clipboard.writeText(rId); alert("تم النسخ!"); }
 </script>
 </body>
 </html>
