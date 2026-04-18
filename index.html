@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>تحدي الـ 15 نقطة | نسخة الحروف</title>
+    <title>روبلة | المنصة الكاملة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* التنسيقات المشتركة */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Cairo', sans-serif;
@@ -16,12 +17,42 @@
             text-align: center;
             padding: 20px 16px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         .bg-glow { position: fixed; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: -1; background: radial-gradient(circle at 20% 40%, rgba(108, 92, 231, 0.2), transparent 70%); }
+        .hidden { display: none !important; }
+
+        /* ستايل الشاشة الرئيسية */
+        #splash-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            animation: fadeIn 0.8s ease-out;
+        }
+        .main-logo-icon { font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 0 20px #6c5ce7); }
+        .btn-main-choice {
+            width: 280px;
+            margin: 10px;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: white;
+            border-bottom: 6px solid rgba(0,0,0,0.3);
+        }
+        .btn-classic { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+        .btn-letters { background: linear-gradient(135deg, #00cec9, #81ecec); color: #0f172a; }
+        .btn-main-choice:hover { transform: scale(1.05) translateY(-5px); }
+
+        /* ستايل اللعب */
         .card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(18px); border-radius: 48px; padding: 28px 24px; max-width: 1100px; margin: 20px auto; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5); }
         h2 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #a5b4fc, #ffb8b8); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 12px; }
         .room-info { background: #1e293bb3; padding: 12px 24px; border-radius: 100px; display: inline-flex; align-items: center; gap: 20px; margin-bottom: 24px; border: 1px solid #6c5ce7; font-weight: 600; }
-        .btn-copy { background: #6c5ce7; border: none; padding: 6px 18px; border-radius: 40px; color: white; cursor: pointer; font-size: 0.8rem; }
         .score-panel { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.35); padding: 12px 20px; border-radius: 80px; margin-bottom: 25px; }
         .score-card { background: #0f172a; padding: 8px 20px; border-radius: 50px; display: flex; align-items: baseline; gap: 8px; font-weight: bold; font-size: 1.2rem; border: 1px solid #334155; }
         .score-value { color: #facc15; font-size: 1.8rem; font-weight: 800; }
@@ -30,23 +61,30 @@
         .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
         .box { background: rgba(0, 0, 0, 0.35); border-radius: 32px; padding: 18px; border: 1px solid rgba(108, 92, 231, 0.5); }
         .letter-item { display: inline-block; background: linear-gradient(145deg, #4834d4, #2c1f9e); margin: 4px; padding: 10px 18px; border-radius: 15px; font-weight: 800; font-size: 1.4rem; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .letter-item.selected { background: #facc15; color: #0f172a; transform: scale(1.1); box-shadow: 0 0 15px #facc15; }
+        .letter-item.selected { background: #facc15 !important; color: #0f172a !important; transform: scale(1.1); box-shadow: 0 0 15px #facc15; }
         .ans-item { background: #1e293b; padding: 10px 14px; margin: 8px 0; border-radius: 50px; display: flex; justify-content: space-between; align-items: center; border-right: 5px solid #6c5ce7; }
         input { padding: 16px 20px; border-radius: 60px; border: 2px solid #6c5ce7; width: 70%; background: #0f172a; color: white; font-size: 1rem; outline: none; }
-        .btn { padding: 12px 24px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn { padding: 12px 24px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
         .btn-send { background: #55efc4; color: #0f172a; width: 25%; }
-        .btn-complete { background: #f1c40f; width: 100%; margin-top: 10px; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; justify-content: center; align-items: center; }
         .result-card { background: #1e293b; padding: 30px; border-radius: 60px; border: 2px solid #6c5ce7; max-width: 450px; width: 90%; text-align: center; }
-        .hidden { display: none !important; }
+        
+        @media (max-width: 700px) { .grid-layout { grid-template-columns: 1fr; } input { width: 60%; } .btn-send { width: 35%; } }
     </style>
 </head>
 <body>
 <div class="bg-glow"></div>
 
-<div id="lobby" class="card">
-    <h2>⚡ تحدي الحروف السحرية</h2>
-    <p style="margin-bottom: 20px; color: #cbd5e6;">اختر حرفاً، ابدأ به إجابتك، وتخلص من كل حروفك للفوز!</p>
+<div id="splash-screen">
+    <span class="main-logo-icon">⚡</span>
+    <h1 style="margin-bottom: 30px;">اختر نمط اللعب</h1>
+    <button class="btn-main-choice btn-classic" onclick="initMode('classic')">روبلة كلاسيك</button>
+    <button class="btn-main-choice btn-letters" onclick="initMode('letters')">روبلة الحروف السحرية</button>
+</div>
+
+<div id="lobby" class="card hidden">
+    <h2 id="lobby-title">تحميل...</h2>
+    <p id="lobby-desc" style="margin-bottom: 20px; color: #cbd5e6;"></p>
     <input type="number" id="roomInput" placeholder="🔢 كود الغرفة" style="text-align: center; width: 80%; margin-bottom: 18px;">
     <div style="display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;">
         <button class="btn" style="background:#6c5ce7; color:white; width: 210px;" onclick="createRoom()">🚀 إنشاء غرفة</button>
@@ -56,8 +94,8 @@
 
 <div id="game-screen" class="card hidden">
     <div class="room-info">
-        <span>🆔 كود الغرفة: <strong id="roomCodeText">----</strong></span>
-        <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 نسخ</button>
+        <span>🆔 كود: <strong id="roomCodeText">----</strong></span>
+        <button class="btn" style="padding:5px 15px; font-size:0.8rem; background:#6c5ce7; color:white;" onclick="copyCode()">📋 نسخ</button>
     </div>
 
     <div class="score-panel">
@@ -71,13 +109,13 @@
     <div id="game-elements" class="hidden">
         <div class="grid-layout">
             <div class="box">
-                <div style="display: flex; justify-content: space-between;"><small>🪄 اختر حرفاً لتبدأ به:</small></div>
+                <div style="display: flex; justify-content: space-between;"><small id="my-box-label">🪄 حروفي:</small></div>
                 <div id="my-letters" style="margin: 12px 0;"></div>
                 <hr style="border-color:#334155; margin: 12px 0;">
                 <div id="my-ans-list"></div>
             </div>
             <div class="box">
-                <div><small>🧩 حروف الخصم المتبقية</small></div>
+                <div><small id="opp-box-label">🧩 حروف الخصم:</small></div>
                 <div id="opp-letters" style="margin: 12px 0;"></div>
                 <hr style="border-color:#334155; margin: 12px 0;">
                 <div id="voting-panel"></div>
@@ -85,13 +123,13 @@
         </div>
 
         <div id="action-area">
-            <input type="text" id="ansInput" placeholder="اكتب إجابة تبدأ بالحرف المختار..." maxlength="70">
+            <input type="text" id="ansInput" placeholder="اكتب إجابتك هنا..." maxlength="70">
             <button class="btn btn-send" onclick="submitAns()">إرسال ✈️</button>
         </div>
     </div>
 
     <div id="host-controls" class="hidden">
-        <button class="btn btn-complete" onclick="nextRound()">➡️ السؤال التالي ⏩</button>
+        <button class="btn" style="background:#f1c40f; width:100%; margin-top:10px;" onclick="nextRound()">➡️ السؤال التالي ⏩</button>
     </div>
 </div>
 
@@ -104,160 +142,7 @@
 </div>
 
 <script>
-    // تم حذف QUESTIONS_BANK هنا للاختصار ولكنها ستبقى كما هي في الكود الأصلي لديك
-    const QUESTIONS_BANK = [
-        "واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅",
-        "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡",
-        "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣",
-        "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑",
-        "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬",
-        "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸",
-        "وش هو أتعس فطور فالعالم؟ 🥲",
-        "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂",
-        "وش الحاجة لي تخليك تضحك بلا سبب؟",
-        "إذا تشوف روحك في المنام، وش تقول لنفسك؟ 😵",
-        "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡",
-        "وش الحاجة لي دايماً تكون “غالية بزاف”؟ 💰",
-        "وش أكثر حاجة تتقال في الأعراس؟ 💃",
-        "وش الحاجة لي نكذبو فيها كامل؟ 🤥",
-        "وش الحاجة لي كل واحد يقول “غدوة نبدأ فيها” وما يبدأش؟ 😴",
-        "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻",
-        "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒",
-        "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫",
-        "وش الحاجة لي كل واحد يدير فيها روحو فاهم؟ 😏",
-        "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒",
-        "إذا صاحبك تبدل وصار غني، وش أول حاجة تطلبها منو؟ 😂",
-        "وش الحاجة لي ما تقبلش تديرها قدام الناس؟ 🙈",
-        "إذا يعطيولك مليار باش تدير حاجة محرجة، وش هي؟ 💰",
-        "وش الحاجة لي لو كانت إنسان، تكرهها؟ 😆",
-        "إذا تقدر تمسح موقف محرج من حياتك، وش هو؟",
-        "وش الحاجة لي دايماً تضيعها؟ 🔍",
-        "وش أكثر حاجة تقول “آخر مرة” وتعاود تديرها؟ 🤦‍♂️",
-        "إذا تكون غير مرئي نهار كامل، وش تدير؟ 👻",
-        "وش الحاجة لي لو يرجع بيك الزمن ما تديرهاش؟ 😅",
-        "حاجة تاكلها بزاف؟ 🍟",
-        "اسم يخوف؟ 😨",
-        "مكان تكره تروحلو؟",
-        "صوت مزعج؟ 🔊",
-        "حيوان غبي؟ 🐔",
-        "حاجة تضيع بسرعة؟",
-        "كلمة تقولها بزاف؟",
-        "حاجة تحبها سرًا؟ 😏",
-        "حاجة تندم عليها؟",
-        "وش الحاجة لي تديرها وحدك وتستحي تقولها؟ 😏",
-        "إذا واحد قالك “نحبك” بالغلط، وش ترد؟ 🤣",
-        "وش أسوأ هدية ممكن تجيك؟ 🎁",
-        "إذا تقدر تبدل اسمك، وش تختار؟ 😆",
-        "وش الحاجة لي تقولها كي تطيح في موقف محرج؟ 😬",
-        "وش أكثر حاجة تديرها كي تكون وحدك فالدار؟ 😂",
-        "إذا صاحبك يطيح قدام الناس، وش تدير؟ (تعاون ولا تضحك؟) 🤣",
-        "وش الحاجة لي دايماً تقول “ماشي أنا” وهي أنت؟ 😅",
-        "وش أكثر حاجة تزعفك بلا سبب؟ 😤",
-        "إذا لازم تاكل حاجة وحدة طول حياتك، وش تختار؟ 🍔",
-        "وش أكثر حاجة تصرا في طابور (لاشان)؟ 😑",
-        "وش الجملة لي دايماً تسمعها من الأم؟ 👩",
-        "وش الحاجة لي تقولها كي تشوف الفاتورة؟ 💸",
-        "وش أكثر كلمة تتقال في الكورة؟ ⚽",
-        "وش الحاجة لي دايماً تضيع في الدار؟ 🔑",
-        "وش أكثر حاجة تندم عليها كي تخرج؟ 😅",
-        "وش الحاجة لي كامل يقولوا “غير دقيقتين” وتطول ساعة؟ ⏳",
-        "وش الحاجة لي تبان رخيصة بصح ماشي؟ 😏",
-        "وش أكثر حاجة تصرا في الأعراس وتكون محرجة؟ 💃",
-        "وش الحاجة لي كامل يعرفوها وما يديرها حتى واحد؟ 🤣",
-        "وش الحاجة لي تقولها في وجه واحد وتغلط فيها من وراه؟ 😏",
-        "إذا واحد يعطيك سر خطير، وش تدير؟ 🤫",
-        "وش الحاجة لي دايماً تغلط فيها وتلوم غيرك؟ 🤣",
-        "إذا تقدر تكذب مرة وما تتكشفش، وش تقول؟ 😈",
-        "وش الحاجة لي تخاف يقولوه عليك الناس؟ 😅",
-        "وش أكثر موقف خلاك تقول “يا ريت الأرض تبلعني”؟ 😂",
-        "إذا تقدر ترجع لور، وش موقف تبدلو؟",
-        "وش الحاجة لي تحبها بصح تستحي تقول؟ 🙈",
-        "إذا واحد فضحك قدام الناس، وش رد فعلك؟ 😤",
-        "حاجة تخوف فالليل؟ 🌙",
-        "حاجة تضحكك؟ 😂",
-        "شخص تعرفه كذاب؟ 😏",
-        "حاجة مملة؟ 😴",
-        "حاجة لذيذة؟ 😋",
-        "صوت تكرهو؟ 🔊",
-        "تطبيق تستعمله بزاف؟ 📱",
-        "كلمة جزائرية مشهورة؟ 🇩🇿",
-        "حاجة ما تفهمهاش؟ 🤯",
-        "حاجة دايماً تنساها؟",
-        "وش أول حاجة تديرها كي تطيح وحدك وما يشوفك حتى واحد؟ 😅",
-        "إذا تسلّم على واحد بالغلط (ما تعرفوش)، وش تدير؟ 🤦‍♂️",
-        "وش أسوأ موقف صرالك قدام بنت/قدام ناس؟ 😬",
-        "إذا تلفونك يرن بصوت عالي فمكان هادئ، وش تعمل؟ 📱",
-        "وش الحاجة لي دايماً توقعلك في الوقت الغلط؟ 😭",
-        "إذا واحد شافك تغلط، وش تقول باش تغطي؟ 😏",
-        "وش الحاجة لي درتها وقلت بعدها “علاش درت هكا؟” 😂",
-        "إذا تسمع اسمك وما يكونوش يقصدوك، وش تدير؟ 😅",
-        "وش أغبى حاجة صدقتها؟ 🤣",
-        "وش موقف خلاك تهرب بلا ما تقول حتى كلمة؟ 🏃‍♂️",
-        "إذا الحيطان تهدر، وش أول سر تقولوه عليك؟ 😳",
-        "إذا المخدة تقدر تحكي، وش راح تفضح؟ 😴",
-        "إذا باب الدار يتكلم، وش يقول على أصحابو؟ 😂",
-        "إذا الكلب تاعك يفهمك، وش أول حاجة تقولها له؟ 🐶",
-        "إذا الدراهم تهدر، وش راح تقول عليك؟ 💸",
-        "إذا المراية تقول الحقيقة، وش راح تسمع؟ 😆",
-        "إذا النعاس كان إنسان، وش راح يكون اسمو؟ 😴",
-        "إذا الكرسي يغضب، وش السبب؟ 🤣",
-        "إذا الشيفون (الممسحة) تحكي، وش تشكي؟ 😂",
-        "إذا التلفاز يمل منك، وش يقول؟ 📺",
-        "وش الحاجة لي دايماً تقول “مش أنا” هي أنت؟ 😏",
-        "إذا واحد يعرف سر عليك، وش تخاف يقول؟ 😬",
-        "وش الحاجة لي تحبها بصح ما تعترفش بيها؟ 🙈",
-        "إذا لازم تعتذر لواحد، وش أسوأ طريقة تعتذر بيها؟ 😂",
-        "وش الحاجة لي ديرها وتقول “آخر مرة”؟ 🤦‍♂️",
-        "إذا واحد خيرك بين صحابك، وش تدير؟ 😅",
-        "وش الحاجة لي تحب تغيّرها في روحك؟",
-        "إذا واحد يقلدك، وش أول حاجة يبان فيها؟ 😆",
-        "وش الحاجة لي تقولها كي تكذب؟ 🤥",
-        "وش الحاجة لي تخاف تصرا لك قدام الناس؟ 😳",
-        "حاجة تزعفك؟ 😤",
-        "حاجة تحبها بزاف؟ ❤️",
-        "اسم غريب؟",
-        "مكان مخيف؟ 👻",
-        "حاجة مملة؟ 😴",
-        "حاجة دايماً تضيع؟ 🔑",
-        "صوت مزعج؟ 🔊",
-        "حاجة تاكلها فالليل؟ 🌙",
-        "كلمة تكرهها؟",
-        "حاجة تحبها سرًا؟",
-        "إذا تعيش نهار كامل بلا كذب، وش يصرا؟ 😂",
-        "إذا كلش تقولو يتحقق، وش أول كلمة تقولها؟ 😈",
-        "إذا تتحول لحيوان نهار، وش تختار؟ 🐒",
-        "إذا تكون مدير على صحابك، وش أول قانون تدير؟ 🤣",
-        "إذا تقدر توقف الوقت، وش تدير؟ ⏳",
-        "إذا تعيش بلا إنترنت، وش تدير؟ 😭",
-        "إذا لازم تلبس نفس اللبسة عام كامل، وش تختار؟ 👕",
-        "إذا تقدر تسمع أفكار الناس، وش أول حاجة تدير؟ 😏",
-        "إذا واحد يقرا أفكارك، وش راح يهرب؟ 😂",
-        "إذا تكون مشهور، وش السبب الغبي لي خلاك مشهور؟ 🤣"
-    "واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅",
-    "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡",
-    "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣",
-    "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑",
-    "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬",
-    "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸",
-    "وش هو أتعس فطور فالعالم؟ 🥲",
-    "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂",
-    "وش الحاجة لي تخليك تضحك بلا سبب؟ 🤭",
-    "واش أقسى حاجة كاين في الزواج؟ 💍",
-    "إذا ولدي عندو 18 سنة وما كاين يخدمش، وش كيدير؟ 😤",
-    "واش أقرب حاجة لي ما كاينش خدمة؟ 😴",
-    "واش أول حاجة كتديرها كي تدخل الحمام؟ 🚿",
-    "إذا كان عندك 1000 دج وواحد فقير طلب منك، وش تعطيو؟ 💰",
-    "وش هي أغرب شيولة كيسمعها فالحومة؟ 🎤",
-    "واش الحاجة لي كتأكدك بلي راك مزداد؟ 🎂",
-    "إذا صاحبتك كتباتلك 'خاصني نتكلمو'، وش معنى؟ 📱",
-    "وش هو أقرب وقت لي ما كايناش خدمة؟ 🕐",
-    "واش أول حاجة كتديرها الصباح؟ ☀️",
-    "وش هي الحالة الوحيدة لي كتصبر فيها على الزبناء؟ 😐",
-    "إذا ولدت مرا وولد، وش تسمى هاد الحب؟ 👶👶",
-    "واش الحاجة لي ما كتوقعهاش غير وقت الضرط؟ 💨",
-    "وش هو أغرب طلب سمعتيه فالمطعم؟ 🍽️",
-    ];
-    
+    // الإعدادات وقاعدة البيانات
     const firebaseConfig = {
         apiKey: "AIzaSyCTKYD680Jdbl0azC9RTtuKZBaLX2uU_Ck",
         authDomain: "my-online-store-34f34.firebaseapp.com",
@@ -270,8 +155,28 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let rId, myRole, oppRole, selectedLetter = null, timerInterval = null;
+    let rId, myRole, oppRole, currentGameMode = 'classic', selectedLetter = null, timerInterval = null;
     const alphabet = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
+
+    const QUESTIONS_BANK = ["واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅", "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡", "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣", "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑", "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬", "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش؟ 💸", "وش هو أتعس فطور فالعالم؟ 🥲", "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂", "وش الحاجة لي تخليك تضحك بلا سبب؟", "إذا تشوف روحك في المنام، وش تقول لنفسك؟ 😵", "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡", "وش الحاجة لي دايماً تكون غالية بزاف؟ 💰", "وش أكثر حاجة تتقال في الأعراس؟ 💃", "وش الحاجة لي نكذبو فيها كامل؟ 🤥", "وش الحاجة لي كل واحد يقول غدوة نبدأ فيها وما يبدأش؟ 😴", "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻", "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒", "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫", "وش الحاجة لي كل واحد يدير فيها روحو فاهم؟ 😏", "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒", "إذا صاحبك صار غني، وش تطلب منو؟ 😂", "وش الحاجة لي ما تقبلش تديرها قدام الناس؟ 🙈", "إذا يعطيولك مليار باش تدير حاجة محرجة؟ 💰", "وش الحاجة لي لو كانت إنسان تكرهها؟ 😆", "إذا تقدر تمسح موقف محرج، وش هو؟", "وش الحاجة لي دايماً تضيعها؟ 🔍", "وش أكثر حاجة تقول آخر مرة وتعاودها؟ 🤦‍♂️", "إذا تكون غير مرئي نهار كامل، وش تدير؟ 👻"];
+
+    function initMode(mode) {
+        currentGameMode = mode;
+        document.getElementById('splash-screen').classList.add('hidden');
+        document.getElementById('lobby').classList.remove('hidden');
+        
+        if(mode === 'classic') {
+            document.getElementById('lobby-title').innerText = "⚡ تحدي الـ 15 نقطة";
+            document.getElementById('lobby-desc').innerText = "أجب بأي شيء واجمع 15 نقطة لتفوز!";
+            document.getElementById('my-box-label').innerText = "🎲 حروفي السحرية:";
+            document.getElementById('ansInput').placeholder = "اكتب إجابة إبداعية...";
+        } else {
+            document.getElementById('lobby-title').innerText = "🪄 تحدي الحروف السحرية";
+            document.getElementById('lobby-desc').innerText = "اختر حرفاً، ابدأ به إجابتك، وتخلص من حروفك للفوز!";
+            document.getElementById('my-box-label').innerText = "🪄 اختر حرفاً لتبدأ به:";
+            document.getElementById('ansInput').placeholder = "إجابة تبدأ بالحرف المختار...";
+        }
+    }
 
     function generateLetters() {
         return Array.from({length: 7}, () => alphabet[Math.floor(Math.random() * alphabet.length)]);
@@ -292,16 +197,16 @@
 
         if (role === 'host') {
             db.ref('rooms/' + rId).set({
+                mode: currentGameMode,
                 hostL: generateLetters(),
                 guestL: generateLetters(),
-                status: 'waiting', // الحالة الافتراضية انتظار
+                status: 'waiting',
                 q: QUESTIONS_BANK[Math.floor(Math.random() * QUESTIONS_BANK.length)],
                 ans: { host: [], guest: [] },
                 scores: { host: 0, guest: 0 },
                 timeLeft: 30
             });
         } else {
-            // عند دخول الضيف يتم تغيير الحالة إلى "لعب"
             db.ref('rooms/' + rId).update({ status: 'playing' });
         }
         document.getElementById('lobby').classList.add('hidden');
@@ -313,31 +218,30 @@
         db.ref('rooms/' + rId).on('value', (snap) => {
             const data = snap.val();
             if (!data) return;
+            currentGameMode = data.mode;
 
-            document.getElementById('my-score').innerText = data.scores[myRole];
-            document.getElementById('opp-score').innerText = data.scores[oppRole];
+            document.getElementById('my-score').innerText = data.scores[myRole] || 0;
+            document.getElementById('opp-score').innerText = data.scores[oppRole] || 0;
 
-            // منطق "انتظار الخصم"
             if (data.status === 'waiting') {
                 document.getElementById('question-area').innerText = "⏳ بانتظار دخول الخصم...";
                 document.getElementById('game-elements').classList.add('hidden');
-                document.getElementById('timer-display').innerText = "30";
-                return; // لا تكمل تنفيذ الكود إلا بعد دخول الخصم
+                return;
             }
 
-            // إذا دخل الخصم، أظهر عناصر اللعبة
             document.getElementById('game-elements').classList.remove('hidden');
             document.getElementById('question-area').innerText = "📢 " + data.q;
             document.getElementById('timer-display').innerText = data.timeLeft;
 
-            renderMyLetters(data[myRole + 'L'] || []);
-            renderOppLetters(data[oppRole + 'L'] || []);
+            renderLettersDisplay('my-letters', data[myRole + 'L'] || [], true);
+            renderLettersDisplay('opp-letters', data[oppRole + 'L'] || [], false);
 
-            if ((data[myRole+'L'] && data[myRole+'L'].length === 0) || data.scores[myRole] >= 15) {
-                showResult(true);
-            } else if ((data[oppRole+'L'] && data[oppRole+'L'].length === 0) || data.scores[oppRole] >= 15) {
-                showResult(false);
-            }
+            // منطق الفوز
+            let iWin = (currentGameMode === 'letters') ? (data[myRole+'L'] && data[myRole+'L'].length === 0) : (data.scores[myRole] >= 15);
+            let oppWins = (currentGameMode === 'letters') ? (data[oppRole+'L'] && data[oppRole+'L'].length === 0) : (data.scores[oppRole] >= 15);
+
+            if (iWin) showResult(true);
+            else if (oppWins) showResult(false);
 
             if (data.timeLeft === 0) {
                 document.getElementById('action-area').classList.add('hidden');
@@ -352,35 +256,35 @@
 
             const myAns = data.ans ? data.ans[myRole] : [];
             document.getElementById('my-ans-list').innerHTML = (myAns || []).map(a => `
-                <div class="ans-item"><span>${a.text}</span><small>${a.status}</small></div>
+                <div class="ans-item"><span>${a.text}</span><small>${a.status === 'accepted' ? '✅' : (a.status === 'rejected' ? '❌' : '⏳')}</small></div>
             `).join('');
         });
     }
 
-    // باقي الدوال (renderMyLetters, selectLetter, submitAns, vote, nextRound, الخ) تبقى كما هي بدون تغيير
-    function renderMyLetters(letters) {
-        const container = document.getElementById('my-letters');
-        container.innerHTML = letters.map(l => `
-            <span class="letter-item ${selectedLetter === l ? 'selected' : ''}" onclick="selectLetter('${l}')">${l}</span>
-        `).join('');
-    }
-
-    function renderOppLetters(letters) {
-        document.getElementById('opp-letters').innerHTML = letters.map(l => `<span class="letter-item" style="cursor:default">${l}</span>`).join('');
+    function renderLettersDisplay(elId, letters, clickable) {
+        const container = document.getElementById(elId);
+        const isOpponent = !clickable; // إذا لم تكن قابلة للضغط فهي للخصم
+        
+        container.innerHTML = letters.map(l => {
+            let classes = "letter-item";
+            if (isOpponent) classes += " opp-style"; // إضافة ستايل الخصم الصغير
+            if (selectedLetter === l && clickable) classes += " selected";
+            
+            return `<span class="${classes}" 
+                  onclick="${clickable && currentGameMode === 'letters' ? `selectLetter('${l}')` : ''}">${l}</span>`;
+        }).join('');
     }
 
     function selectLetter(l) {
         selectedLetter = l;
-        renderMyLetters(document.getElementById('my-letters').innerText.split('')); // تحديث الشكل
-        const items = document.querySelectorAll('#my-letters .letter-item');
-        items.forEach(i => i.classList.remove('selected'));
-        event.target.classList.add('selected');
+        db.ref(`rooms/${rId}/${myRole}L`).once('value', s => renderLettersDisplay('my-letters', s.val(), true));
     }
 
     function submitAns() {
-        if (!selectedLetter) return alert("⚠️ اختر حرفاً أولاً من قائمتك!");
+        if (currentGameMode === 'letters' && !selectedLetter) return alert("⚠️ اختر حرفاً أولاً!");
         const text = document.getElementById('ansInput').value.trim();
-        if (!text.startsWith(selectedLetter)) return alert(`⚠️ الإجابة يجب أن تبدأ بحرف (${selectedLetter})`);
+        if (!text) return;
+        if (currentGameMode === 'letters' && !text.startsWith(selectedLetter)) return alert(`يجب البدء بحرف ${selectedLetter}`);
 
         db.ref(`rooms/${rId}/ans/${myRole}`).once('value', snap => {
             let list = snap.val() || [];
@@ -394,15 +298,15 @@
     function renderVotingPanel(oppAnswers) {
         const container = document.getElementById('voting-panel');
         const pending = (oppAnswers || []).filter(a => a.status === 'pending');
-        if (pending.length === 0) return container.innerHTML = "انتظار تقييم الخصم...";
+        if (pending.length === 0) return container.innerHTML = "<small>انتظار الخصم...</small>";
         
         container.innerHTML = "<h4>تقييم الخصم:</h4>";
         pending.forEach(ans => {
             container.innerHTML += `
                 <div class="ans-item">
-                    <span>${ans.text}</span>
-                    <button class="btn" style="background:#55efc4" onclick="vote('${ans.text}', 'accepted')">✅</button>
-                    <button class="btn" style="background:#ff7675" onclick="vote('${ans.text}', 'rejected')">❌</button>
+                    <span style="font-size:0.9rem">${ans.text}</span>
+                    <button class="btn" style="background:#55efc4; padding:5px 10px;" onclick="vote('${ans.text}', 'accepted')">✅</button>
+                    <button class="btn" style="background:#ff7675; padding:5px 10px;" onclick="vote('${ans.text}', 'rejected')">❌</button>
                 </div>
             `;
         });
@@ -416,14 +320,13 @@
                 list[idx].status = status;
                 if (status === 'accepted') {
                     db.ref(`rooms/${rId}/scores/${oppRole}`).transaction(s => (s || 0) + 1);
-                    db.ref(`rooms/${rId}/${oppRole}L`).once('value', sL => {
-                        let letters = sL.val();
-                        let lIdx = letters.indexOf(list[idx].letter);
-                        if (lIdx > -1) {
-                            letters.splice(lIdx, 1);
-                            db.ref(`rooms/${rId}/${oppRole}L`).set(letters);
-                        }
-                    });
+                    if(currentGameMode === 'letters') {
+                        db.ref(`rooms/${rId}/${oppRole}L`).once('value', sL => {
+                            let letters = sL.val();
+                            let lIdx = letters.indexOf(list[idx].letter);
+                            if (lIdx > -1) { letters.splice(lIdx, 1); db.ref(`rooms/${rId}/${oppRole}L`).set(letters); }
+                        });
+                    }
                 }
                 db.ref(`rooms/${rId}/ans/${oppRole}`).set(list);
             }
@@ -453,7 +356,7 @@
 
     function copyCode() {
         navigator.clipboard.writeText(rId);
-        alert("تم نسخ الكود: " + rId);
+        alert("تم نسخ الكود!");
     }
 </script>
 </body>
