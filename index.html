@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>تحدي الحروف | النسخة المتوهجة</title>
+    <title>تحدي الحروف | نسخة ذكية متوهجة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* تأثير توهج خلفي سحري */
         body::before {
             content: '';
             position: fixed;
@@ -141,7 +140,6 @@
             border: 1px solid rgba(255,215,0,0.6);
         }
 
-        /* تخطيط مقلوب: الخصم بالأعلى ، حروفي بالأسفل */
         .dual-layout {
             display: flex;
             flex-direction: column;
@@ -182,7 +180,7 @@
             border-radius: 60px;
             font-weight: 800;
             font-size: 1.4rem;
-            cursor: pointer;
+            cursor: default;
             transition: 0.1s linear;
             border: 1px solid #fff3bf;
             box-shadow: 0 6px 14px black;
@@ -191,12 +189,10 @@
             letter-spacing: 2px;
         }
 
-        .letter-item.selected {
-            background: linear-gradient(145deg, #FFE55C, #FFB347);
-            color: #1f1f2a;
-            transform: scale(1.1);
-            box-shadow: 0 0 28px #FFD966;
-            border-color: white;
+        .my-letter-glow {
+            background: linear-gradient(145deg, #c471ff, #8a2be2);
+            cursor: default;
+            box-shadow: 0 0 12px #c471ff;
         }
 
         .opp-letter {
@@ -353,7 +349,7 @@
 
 <div id="lobby" class="card">
     <h2>✨ تحدي الحروف ✨</h2>
-    <p style="margin: 10px 0 20px; color:#e2daff;">ابدأ بحرفك، أجب بذكاء، واجمع 15 نقطة قبل الخصم 🔥</p>
+    <p style="margin: 10px 0 20px; color:#e2daff;">اكتب إجابة تبدأ بأحد حروفك .. ذكاء تلقائي 🧠💥</p>
     <input type="number" id="roomInput" placeholder="🔢 كود الغرفة (أرقام)" style="text-align: center; width: 85%; margin-bottom: 22px;">
     <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
         <button class="btn" style="background:linear-gradient(135deg,#ff758c,#ff7eb3); color:#121212; width: 190px;" onclick="createRoom()">🌟 إنشاء غرفة</button>
@@ -378,7 +374,7 @@
         <div class="dual-layout">
             <!-- قسم الخصم في الأعلى -->
             <div class="opponent-section">
-                <div><span>⭐ حروف الخصم المتبقية</span> <span style="font-size:0.8rem;">(يتخلص منها بالاجابات الصحيحة)</span></div>
+                <div><span>⭐ حروف الخصم المتبقية</span> <span style="font-size:0.8rem;">(يتخلص منها بالإجابات الصحيحة)</span></div>
                 <div id="opp-letters" class="letters-container"></div>
                 <hr style="margin: 12px 0; border-color: #ff66c0;">
                 <div><span>⚖️ تقييم إجاباتي (الخصم سيُقيمها)</span></div>
@@ -387,7 +383,7 @@
 
             <!-- قسم حروفي في الأسفل -->
             <div class="my-section">
-                <div><span>💎 حروفي (اختر حرفًا ليبدأ به جوابك)</span></div>
+                <div><span>💎 حروفي (ابدأ إجابتك بأيٍّ منها تلقائيًا)</span></div>
                 <div id="my-letters" class="letters-container"></div>
                 <hr style="margin: 12px 0; border-color: #3eff9e;">
                 <div><span>📝 إجاباتي المرسلة (تنتظر التقييم)</span></div>
@@ -398,10 +394,10 @@
         <div id="action-area" class="action-with-timer">
             <div id="timer-display" class="timer">30</div>
             <div class="input-group">
-                <input type="text" id="ansInput" placeholder="اكتب إجابة تبدأ بالحرف المختار ..." maxlength="80">
+                <input type="text" id="ansInput" placeholder="اكتب أي إجابة تبدأ بأحد حروفك الظاهرة ..." maxlength="80">
                 <button class="btn btn-send" onclick="submitAns()">إرسال ✈️</button>
             </div>
-            <div class="badge-light">⚠️ اضغط على أحد حروفك أولًا ليُحدد كبداية للإجابة</div>
+            <div class="badge-light">⚡ النظام يتعرف تلقائيًا على أول حرف من إجابتك — يجب أن يكون ضمن حروفك</div>
         </div>
     </div>
 
@@ -519,24 +515,22 @@
             // عرض حروفي بالأسفل
             renderMyLetters(data[myRole + 'L'] || []);
             
-            // عرض إجاباتي التي أرسلتها (مع حالتها)
+            // عرض إجاباتي التي أرسلتها
             const myAnswers = data.ans ? data.ans[myRole] : [];
             document.getElementById('my-ans-list').innerHTML = myAnswers.map(a => `
                 <div class="ans-item"><span>📌 ${escapeHtml(a.text)}</span> <span style="font-size:0.7rem;">${a.status === 'accepted' ? '✅ مقبولة (+1 نقطة وحذف الحرف)' : (a.status === 'rejected' ? '❌ مرفوضة' : '⏳ تنتظر التقييم')}</span></div>
             `).join('');
             
-            // عرض إجاباتي التي سيقيمها الخصم (المنظور الآخر) - في جزء تقييمي
+            // تقييم الخصم لإجاباتي (الخصم يقيّم)
             const oppAnswers = data.ans ? data.ans[oppRole] : [];
-            const pendingForMe = oppAnswers.filter(a => a.status === 'pending');
             const evaluationDiv = document.getElementById('my-answers-evaluation');
             if (data.timeLeft === 0 && myRole === 'host') {
                 evaluationDiv.innerHTML = `<div class="badge-light">⏰ انتهى الوقت! قيّم إجابات الخصم 👇</div>`;
                 renderVotingPanel(oppAnswers);
             } else if (data.timeLeft === 0 && myRole !== 'host') {
                 evaluationDiv.innerHTML = `<div class="badge-light">⏳ جولة منتهية، انتظر تقييم الخصم ...</div>`;
-                document.getElementById('voting-panel-container')?.remove();
             } else {
-                if (pendingForMe.length > 0 && myRole !== 'host') {
+                if (oppAnswers.filter(a => a.status === 'pending').length > 0 && myRole !== 'host') {
                     evaluationDiv.innerHTML = `<div class="badge-light">✨ الخصم سيقيّم إجاباتك قريبًا ✨</div>`;
                 } else {
                     evaluationDiv.innerHTML = `<div class="badge-light">⚡ لا توجد إجابات معلقة للخصم</div>`;
@@ -558,7 +552,7 @@
     function renderMyLetters(letters) {
         const container = document.getElementById('my-letters');
         if (!letters.length) { container.innerHTML = "<span>🎉 لا حروف متبقية! أنت الفائز 🎉</span>"; return; }
-        container.innerHTML = letters.map(l => `<span class="letter-item" onclick="selectLetter('${l}')">${l}</span>`).join('');
+        container.innerHTML = letters.map(l => `<span class="letter-item my-letter-glow">${l}</span>`).join('');
     }
 
     function renderOppLetters(letters) {
@@ -567,36 +561,31 @@
         container.innerHTML = letters.map(l => `<span class="letter-item opp-letter">${l}</span>`).join('');
     }
 
-    window.selectLetter = function(letter) {
-        const items = document.querySelectorAll('#my-letters .letter-item');
-        items.forEach(i => i.classList.remove('selected'));
-        const target = Array.from(items).find(i => i.innerText === letter);
-        if(target) target.classList.add('selected');
-        window.selectedLetterGlobal = letter;
-    };
-
+    // دالة ذكية للتعرف على أول حرف والتحقق من وجوده في حروف اللاعب
     function submitAns() {
         const text = document.getElementById('ansInput').value.trim();
-        if (!text) return alert("✏️ اكتب إجابة!");
-        if (!window.selectedLetterGlobal) return alert("⚠️ اضغط على أحد حروفك أولاً ليصبح الحرف الأول لإجابتك!");
-        const firstChar = text[0];
-        if (firstChar !== window.selectedLetterGlobal) {
-            return alert(`⚠️ يجب أن تبدأ إجابتك بالحرف "${window.selectedLetterGlobal}" الذي اخترته!`);
-        }
+        if (!text) return alert("✏️ اكتب إجابة أولاً!");
         
+        const firstChar = text[0];
+        if (!firstChar) return alert("الإجابة لا يمكن أن تبدأ بحرف فارغ!");
+        
+        // جلب حروف اللاعب الحالية من الفايربيز والتحقق
         db.ref(`rooms/${rId}/${myRole}L`).once('value', snap => {
             const myLetters = snap.val() || [];
             if (!myLetters.includes(firstChar)) {
-                return alert(`⚠️ حرف "${firstChar}" غير موجود في حروفك! اختر حرفًا متاحًا.`);
+                return alert(`⚠️ إجابتك تبدأ بحرف "${firstChar}" لكن هذا الحرف ليس ضمن حروفك المتاحة!\nحروفك الحالية: ${myLetters.join(' - ')}`);
             }
+            // التحقق من عدم تكرار نفس الإجابة بنفس الحرف في نفس الجولة (اختياري لكن لا مانع)
             db.ref(`rooms/${rId}/ans/${myRole}`).once('value', snapAns => {
                 let list = snapAns.val() || [];
+                // إضافة الإجابة الجديدة
                 list.push({ text: text, letter: firstChar, status: 'pending' });
                 db.ref(`rooms/${rId}/ans/${myRole}`).set(list);
                 document.getElementById('ansInput').value = "";
-                const items = document.querySelectorAll('#my-letters .letter-item');
-                items.forEach(i => i.classList.remove('selected'));
-                window.selectedLetterGlobal = null;
+                // وميض تأكيد سريع
+                const btn = document.querySelector('.btn-send');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = '', 150);
             });
         });
     }
@@ -642,9 +631,7 @@
                     }
                 });
             }
-            db.ref(`rooms/${rId}/ans/${oppRole}`).set(list).then(() => {
-                // تحديث الواجهة بعد التصويت
-            });
+            db.ref(`rooms/${rId}/ans/${oppRole}`).set(list).then(() => {});
         });
     };
 
