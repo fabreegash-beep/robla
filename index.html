@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>تحدي الحروف | تقييم تلقائي للخصم</title>
+    <title>تحدي الحروف | تقييم متبادل</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
             background: radial-gradient(circle at 10% 30%, #0b0b2b, #030318);
             color: #ffffff;
             text-align: center;
-            padding: 18px 14px;
+            padding: 18px 12px;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,9 +43,9 @@
         .card {
             background: rgba(12, 12, 35, 0.7);
             backdrop-filter: blur(18px);
-            border-radius: 64px;
-            padding: 24px 20px;
-            max-width: 700px;
+            border-radius: 56px;
+            padding: 20px 16px;
+            max-width: 680px;
             width: 100%;
             margin: 0 auto;
             border: 1px solid rgba(255, 200, 255, 0.3);
@@ -56,7 +56,7 @@
         }
 
         h2 {
-            font-size: 2.1rem;
+            font-size: 1.9rem;
             font-weight: 800;
             background: linear-gradient(135deg, #FFE6B0, #FF9A9E, #D4A5FF);
             -webkit-background-clip: text;
@@ -64,250 +64,232 @@
             color: transparent;
             text-shadow: 0 0 18px rgba(255, 200, 100, 0.6);
             margin-bottom: 6px;
-            letter-spacing: -0.5px;
         }
 
         .room-info {
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 22px;
+            padding: 6px 18px;
             border-radius: 100px;
             display: inline-flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 18px;
             border: 1px solid #ffaa66;
-            box-shadow: 0 0 12px #ffaa66aa;
+            box-shadow: 0 0 10px #ffaa66aa;
             font-weight: 600;
-            backdrop-filter: blur(4px);
         }
 
         .btn-copy {
             background: linear-gradient(135deg, #FFB347, #FF6B6B);
             border: none;
-            padding: 6px 20px;
+            padding: 5px 16px;
             border-radius: 50px;
             color: #111;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
-            transition: 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
-        .btn-copy:active { transform: scale(0.96); }
 
         .score-panel {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
         .score-card {
             background: rgba(0, 0, 0, 0.65);
-            padding: 8px 16px;
-            border-radius: 60px;
+            padding: 6px 12px;
+            border-radius: 50px;
             flex: 1;
             display: flex;
             align-items: baseline;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             border: 1px solid #2effc6;
-            box-shadow: 0 0 12px #2effc6aa;
-            backdrop-filter: blur(4px);
+            box-shadow: 0 0 10px #2effc6aa;
         }
 
         .score-value {
             color: #FFE484;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            text-shadow: 0 0 12px #FFB347;
+            text-shadow: 0 0 10px #FFB347;
         }
 
         .question-box {
             background: linear-gradient(125deg, #FF416C, #FF4B2B);
-            padding: 20px 14px;
-            border-radius: 60px;
-            margin: 18px 0;
-            font-size: 1.35rem;
+            padding: 16px 12px;
+            border-radius: 48px;
+            margin: 14px 0;
+            font-size: 1.2rem;
             font-weight: 700;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(255,255,255,0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
             color: #fff4e0;
-            text-shadow: 0 1px 2px black;
             word-break: break-word;
-            border: 1px solid rgba(255,215,0,0.6);
         }
 
         .dual-layout {
             display: flex;
             flex-direction: column;
-            gap: 22px;
-            margin: 20px 0;
+            gap: 18px;
+            margin: 16px 0;
         }
 
-        .opponent-section {
+        .opponent-section, .my-section {
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(12px);
-            border-radius: 48px;
-            padding: 18px 14px;
+            border-radius: 40px;
+            padding: 14px 12px;
             border: 1px solid #ff66c0;
-            box-shadow: 0 0 18px rgba(255, 102, 192, 0.4);
+            box-shadow: 0 0 14px rgba(255, 102, 192, 0.3);
         }
 
         .my-section {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(12px);
-            border-radius: 48px;
-            padding: 18px 14px;
-            border: 1px solid #3eff9e;
-            box-shadow: 0 0 18px rgba(62, 255, 158, 0.4);
+            border-color: #3eff9e;
+            box-shadow: 0 0 14px rgba(62, 255, 158, 0.3);
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
         }
 
         .letters-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin: 14px 0 10px;
+            gap: 8px;
+            margin: 10px 0 8px;
         }
 
+        /* تصغير حجم الحروف بشكل ملحوظ */
         .letter-item {
             background: linear-gradient(145deg, #9b4dff, #5e2a9c);
             display: inline-block;
-            padding: 10px 18px;
-            border-radius: 60px;
+            padding: 6px 12px;
+            border-radius: 40px;
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             cursor: default;
-            transition: 0.1s linear;
             border: 1px solid #fff3bf;
-            box-shadow: 0 6px 14px black;
-            min-width: 60px;
+            box-shadow: 0 4px 10px black;
+            min-width: 44px;
             text-align: center;
-            letter-spacing: 2px;
         }
 
         .my-letter-glow {
             background: linear-gradient(145deg, #c471ff, #8a2be2);
-            cursor: default;
-            box-shadow: 0 0 12px #c471ff;
+            box-shadow: 0 0 8px #c471ff;
         }
 
         .opp-letter {
             background: linear-gradient(145deg, #b84c8c, #6b2e5a);
-            cursor: default;
             opacity: 0.9;
-            filter: drop-shadow(0 0 6px #ff90e0);
         }
 
         .ans-item {
             background: rgba(25, 25, 55, 0.85);
-            padding: 10px 16px;
-            margin: 8px 0;
-            border-radius: 50px;
+            padding: 8px 12px;
+            margin: 6px 0;
+            border-radius: 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-right: 5px solid #0ef;
-            gap: 12px;
+            border-right: 4px solid #0ef;
+            gap: 10px;
             flex-wrap: wrap;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        .input-group {
-            display: flex;
-            gap: 12px;
+        /* ترتيب جديد: زر الإرسال فوق حقل الكتابة */
+        .action-area {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 56px;
+            padding: 16px 14px;
             margin-top: 12px;
-            flex-wrap: wrap;
+            backdrop-filter: blur(8px);
         }
 
-        input {
-            padding: 15px 18px;
-            border-radius: 60px;
-            border: 2px solid #ff8c5a;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            font-size: 1rem;
-            flex: 3;
-            outline: none;
-            font-family: 'Cairo', sans-serif;
-        }
-
-        input:focus {
-            border-color: #3effb5;
-            box-shadow: 0 0 18px #3effb5;
-        }
-
-        .btn {
-            padding: 12px 28px;
-            border-radius: 60px;
-            border: none;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Cairo', sans-serif;
+        .send-btn-top {
+            width: 100%;
+            margin-bottom: 12px;
         }
 
         .btn-send {
             background: linear-gradient(135deg, #00f2fe, #4facfe);
             color: #121212;
-            flex: 1;
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
             box-shadow: 0 6px 14px #0066aa;
         }
 
-        .btn-send:active { transform: scale(0.96); }
-
-        .btn-complete {
-            background: linear-gradient(135deg, #f9f047, #f9a826);
-            color: #1e1e2c;
+        .input-field {
             width: 100%;
-            margin-top: 16px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 0 18px #ffcc44;
+            padding: 14px 18px;
+            border-radius: 60px;
+            border: 2px solid #ff8c5a;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .input-field:focus {
+            border-color: #3effb5;
+            box-shadow: 0 0 15px #3effb5;
         }
 
         .timer {
-            font-size: 2.8rem;
+            font-size: 2.4rem;
             font-weight: 800;
             font-family: monospace;
             background: linear-gradient(135deg, cyan, #ff44cc);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 20px cyan;
-            margin-bottom: 6px;
-        }
-
-        .action-with-timer {
-            background: rgba(0, 0, 0, 0.45);
-            border-radius: 70px;
-            padding: 20px 16px;
-            margin-top: 12px;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,180,0.3);
+            text-shadow: 0 0 15px cyan;
+            margin-bottom: 8px;
         }
 
         .voting-buttons {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .vote-btn {
-            padding: 8px 22px;
-            border-radius: 50px;
+            padding: 6px 18px;
+            border-radius: 40px;
             border: none;
             font-weight: bold;
             color: white;
             cursor: pointer;
+            font-size: 0.8rem;
         }
 
-        .vote-accept { background: #00b894; box-shadow: 0 0 8px #00e6b8; }
-        .vote-reject { background: #d63031; box-shadow: 0 0 8px #ff7675; }
+        .vote-accept { background: #00b894; box-shadow: 0 0 6px #00e6b8; }
+        .vote-reject { background: #d63031; box-shadow: 0 0 6px #ff7675; }
+
+        .btn-complete {
+            background: linear-gradient(135deg, #f9f047, #f9a826);
+            color: #1e1e2c;
+            width: 100%;
+            margin-top: 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+        }
 
         .overlay {
             position: fixed;
@@ -325,23 +307,21 @@
 
         .result-card {
             background: linear-gradient(145deg, #1b1b3a, #26264b);
-            padding: 36px 24px;
-            border-radius: 80px;
+            padding: 30px 20px;
+            border-radius: 70px;
             border: 2px solid gold;
-            max-width: 380px;
+            max-width: 340px;
             width: 85%;
             text-align: center;
-            box-shadow: 0 0 50px gold;
         }
 
         .hidden { display: none !important; }
-        .badge-light { font-size: 0.7rem; opacity: 0.8; margin-top: 6px; }
+        .badge-light { font-size: 0.65rem; opacity: 0.8; margin-top: 6px; }
 
         @media (max-width: 550px) {
-            .letter-item { padding: 6px 14px; font-size: 1.2rem; min-width: 50px; }
-            .question-box { font-size: 1.1rem; }
-            .score-value { font-size: 1.7rem; }
-            .card { padding: 18px 14px; }
+            .letter-item { padding: 4px 10px; font-size: 0.95rem; min-width: 38px; }
+            .question-box { font-size: 1rem; }
+            .score-value { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -349,18 +329,18 @@
 
 <div id="lobby" class="card">
     <h2>✨ تحدي الحروف ✨</h2>
-    <p style="margin: 10px 0 20px; color:#e2daff;">اكتب إجابة تبدأ بأحد حروفك .. الخصم يُقيم تلقائياً 🧠💥</p>
-    <input type="number" id="roomInput" placeholder="🔢 كود الغرفة (أرقام)" style="text-align: center; width: 85%; margin-bottom: 22px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
-        <button class="btn" style="background:linear-gradient(135deg,#ff758c,#ff7eb3); color:#121212; width: 190px;" onclick="createRoom()">🌟 إنشاء غرفة</button>
-        <button class="btn" style="background:linear-gradient(135deg,#43e97b,#38f9d7); color:#121212; width: 190px;" onclick="setupRoom('guest')">🎮 انضمام لصديق</button>
+    <p style="margin: 8px 0 18px; font-size:0.9rem;">اكتب إجابة تبدأ بأحد حروفك .. وقيّم إجابات خصمك 🧠</p>
+    <input type="number" id="roomInput" placeholder="🔢 كود الغرفة" style="text-align: center; width: 85%; margin-bottom: 18px; padding: 12px; border-radius: 50px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+        <button class="btn" style="background:linear-gradient(135deg,#ff758c,#ff7eb3); color:#121212; width: 170px; padding:10px;" onclick="createRoom()">🌟 إنشاء غرفة</button>
+        <button class="btn" style="background:linear-gradient(135deg,#43e97b,#38f9d7); color:#121212; width: 170px; padding:10px;" onclick="setupRoom('guest')">🎮 انضمام</button>
     </div>
 </div>
 
 <div id="game-screen" class="card hidden">
     <div class="room-info">
-        <span>🆔 كود الغرفة: <strong id="roomCodeText">----</strong></span>
-        <button class="btn-copy" id="copyBtn" onclick="copyCode()">📋 نسخ</button>
+        <span>🆔 <strong id="roomCodeText">----</strong></span>
+        <button class="btn-copy" onclick="copyCode()">📋 نسخ</button>
     </div>
 
     <div class="score-panel">
@@ -368,54 +348,54 @@
         <div class="score-card"><span>🌀 الخصم</span> <span class="score-value" id="opp-score">0</span></div>
     </div>
 
-    <div id="question-area" class="question-box">✨ بانتظار بدء اللعبة ... ✨</div>
+    <div id="question-area" class="question-box">✨ بانتظار البدء...</div>
 
     <div id="game-elements" class="hidden">
         <div class="dual-layout">
-            <!-- قسم الخصم في الأعلى -->
+            <!-- الخصم (أعلى) -->
             <div class="opponent-section">
-                <div><span>⭐ حروف الخصم المتبقية</span> <span style="font-size:0.8rem;">(يتخلص منها بالإجابات الصحيحة)</span></div>
+                <div class="section-title">⭐ حروف الخصم المتبقية</div>
                 <div id="opp-letters" class="letters-container"></div>
-                <hr style="margin: 12px 0; border-color: #ff66c0;">
-                <div><span>⚖️ تقييم إجابات الخصم (تظهر هنا فقط للمضيف)</span></div>
+                <hr style="margin: 10px 0; border-color:#ff66c0;">
+                <div class="section-title">⚖️ تقييم إجابات الخصم</div>
                 <div id="opponent-answers-evaluation"></div>
             </div>
 
-            <!-- قسم حروفي في الأسفل -->
+            <!-- أنا (أسفل) -->
             <div class="my-section">
-                <div><span>💎 حروفي (ابدأ إجابتك بأيٍّ منها تلقائيًا)</span></div>
+                <div class="section-title">💎 حروفي (ابدأ بأي حرف منها)</div>
                 <div id="my-letters" class="letters-container"></div>
-                <hr style="margin: 12px 0; border-color: #3eff9e;">
-                <div><span>📝 إجاباتي المرسلة (تنتظر تقييم الخصم)</span></div>
+                <hr style="margin: 10px 0; border-color:#3eff9e;">
+                <div class="section-title">📝 إجاباتي المرسلة</div>
                 <div id="my-ans-list"></div>
             </div>
         </div>
 
-        <div id="action-area" class="action-with-timer">
+        <!-- منطقة الإجراءات: زر الإرسال فوق حقل الكتابة -->
+        <div id="action-area" class="action-area">
             <div id="timer-display" class="timer">30</div>
-            <div class="input-group">
-                <input type="text" id="ansInput" placeholder="اكتب أي إجابة تبدأ بأحد حروفك الظاهرة ..." maxlength="80">
-                <button class="btn btn-send" onclick="submitAns()">إرسال ✈️</button>
+            <div class="send-btn-top">
+                <button class="btn btn-send" onclick="submitAns()">📤 إرسال الإجابة</button>
             </div>
-            <div class="badge-light">⚡ النظام يتعرف تلقائيًا على أول حرف من إجابتك — يجب أن يكون ضمن حروفك</div>
+            <input type="text" id="ansInput" class="input-field" placeholder="اكتب إجابة تبدأ بأحد حروفك..." maxlength="80">
+            <div class="badge-light">⚡ الحرف الأول من إجابتك يجب أن يكون ضمن حروفك أعلاه</div>
         </div>
     </div>
 
     <div id="host-controls" class="hidden">
-        <button class="btn btn-complete" onclick="nextRound()">🎲 الجولة التالية + تفعيل الوقت 🎲</button>
+        <button class="btn-complete" onclick="nextRound()">🎲 السؤال التالي 🎲</button>
     </div>
 </div>
 
 <div id="result-overlay" class="overlay hidden">
     <div class="result-card">
-        <div id="win-ui" class="hidden"><h1>🏆 فوز ناري!</h1><p style="margin-top:12px;">أنت بطل الحروف المتوهجة 🌟</p></div>
-        <div id="lose-ui" class="hidden"><h1>💥 خسارة ملحمية</h1><p style="margin-top:12px;">جرب مرة أخرى .. الحروف تنتظرك 💪</p></div>
-        <button class="btn" style="background:linear-gradient(135deg,#ff6a88,#f09819); color:#121212; width:100%; margin-top:28px;" onclick="location.reload()">🏠 الصالة الرئيسية</button>
+        <div id="win-ui" class="hidden"><h1>🏆 فوز!</h1><p>عبقري الحروف 🌟</p></div>
+        <div id="lose-ui" class="hidden"><h1>💥 خسارة</h1><p>حاول مجدداً 💪</p></div>
+        <button class="btn" style="background:linear-gradient(135deg,#ff6a88,#f09819); color:#121212; width:100%; margin-top:20px; padding:10px;" onclick="location.reload()">🏠 الرئيسية</button>
     </div>
 </div>
 
 <script>
-    // إعداد Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCTKYD680Jdbl0azC9RTtuKZBaLX2uU_Ck",
         authDomain: "my-online-store-34f34.firebaseapp.com",
@@ -431,7 +411,6 @@
     let rId, myRole, oppRole, timerInterval = null;
     const alphabet = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
     
-    // بنك أسئلة ممتع ومشع
     const QUESTIONS_BANK = [
         "وش الحاجة اللي كلنا نقولها بكرة وما نبداوهاش؟ 😂", "إذا رجعت للوراء وش أول غلط تصلحه؟", "وش أسوأ شي ممكن يصير في العرس؟ 💃",
         "واش تحس كي تشوف البطارية 1%؟", "وش الحاجة اللي تضيع منك كل نهار؟ 🔑", "أغرب عذر سمعته عشان واحد يتغيب؟",
@@ -441,10 +420,7 @@
         "أسوأ هدية جاتك في عيد ميلادك؟", "إذا ربحت المليون وش أول حاجة تشريها؟", "وش الشي اللي كي تشوفه تتفشل؟",
         "صوت تحبه و تكرهه ف نفس الوقت؟ 🔊", "إذا صديقك يطلب منك فلوس وما يرجعهمش؟", "وش الجملة اللي دايما تقولها كي تتعصب؟",
         "أكثر موقف محرج صارلك فالمدرسة؟", "وش أول شي تسوي كي الصحوة من النوم؟", "لو تصير رئيس بلدية نهار واحد أول قرار؟",
-        "حاجة تحب تسويها بس تستحي؟ 😳", "وش أكتر كلمة تسمعها من الماما؟", "إذا صاحبك يصورك وانت تاكل وش تدير؟",
-        "وش اللي يقولوه عليك من وراك؟", "حلم غريب حلمت بيه؟", "وش أكثر شي يخوفك فالليل؟ 🌙",
-        "أغبى شيء سويته بحياتك؟ 🤣", "وش الحاجة اللي تقولها وانت كذاب؟", "لو يمدوك باش تغير اسمك وش تختار؟",
-        "وش الحاجة اللي دايمًا تضيع وقتك؟ 📱", "إذا التلفون يتكلم وش يحكي عنك؟", "لو كل الناس تصمت ساعة وش راح تسوي؟"
+        "حاجة تحب تسويها بس تستحي؟ 😳", "وش أكتر كلمة تسمعها من الماما؟", "إذا صاحبك يصورك وانت تاكل وش تدير؟"
     ];
 
     function generateLetters() {
@@ -501,7 +477,7 @@
             if (oppScore >= 15 || oppLettersArr.length === 0) { showResult(false); return; }
 
             if (data.status === 'waiting') {
-                document.getElementById('question-area').innerHTML = "⏳ في انتظار انضمام الخصم ... ✨";
+                document.getElementById('question-area').innerHTML = "⏳ في انتظار الخصم ...";
                 document.getElementById('game-elements').classList.add('hidden');
                 return;
             }
@@ -510,56 +486,45 @@
             document.getElementById('question-area').innerHTML = "🎤 " + data.q;
             document.getElementById('timer-display').innerText = data.timeLeft;
             
-            // عرض حروف الخصم بالأعلى
             renderOppLetters(data[oppRole + 'L'] || []);
-            // عرض حروفي بالأسفل
             renderMyLetters(data[myRole + 'L'] || []);
             
-            // عرض إجاباتي التي أرسلتها
+            // إجاباتي
             const myAnswers = data.ans ? data.ans[myRole] : [];
             document.getElementById('my-ans-list').innerHTML = myAnswers.map(a => `
-                <div class="ans-item"><span>📌 ${escapeHtml(a.text)}</span> <span style="font-size:0.7rem;">${a.status === 'accepted' ? '✅ مقبولة (+1 نقطة وحذف الحرف)' : (a.status === 'rejected' ? '❌ مرفوضة' : '⏳ تنتظر التقييم')}</span></div>
+                <div class="ans-item"><span>📌 ${escapeHtml(a.text)}</span> <span style="font-size:0.7rem;">${a.status === 'accepted' ? '✅ مقبولة' : (a.status === 'rejected' ? '❌ مرفوضة' : '⏳ تنتظر')}</span></div>
             `).join('');
             
-            // ========== تقييم الخصم: نعرض إجابات الخصم للمضيف فقط ==========
+            // ===== تقييم الخصم: كل لاعب يرى إجابات خصمه ويقيمها =====
             const oppAnswers = data.ans ? data.ans[oppRole] : [];
-            const evaluationContainer = document.getElementById('opponent-answers-evaluation');
+            const evaluationDiv = document.getElementById('opponent-answers-evaluation');
             
-            if (data.timeLeft === 0 && myRole === 'host') {
-                // المضيف يشاهد إجابات الخصم ويقيمها
-                const pendingOppAnswers = oppAnswers.filter(a => a.status === 'pending');
-                if (pendingOppAnswers.length > 0) {
-                    let html = `<div style="margin-bottom:12px; font-weight:bold;">🎭 قيّم إجابات الخصم (صح أم خطأ):</div>`;
-                    pendingOppAnswers.forEach(ans => {
+            if (data.timeLeft === 0) {
+                // الوقت انتهى: كل لاعب يقيم إجابات خصمه
+                const pendingOpp = oppAnswers.filter(a => a.status === 'pending');
+                if (pendingOpp.length > 0) {
+                    let html = `<div style="margin-bottom:8px; font-weight:bold;">🎭 قيّم إجابات الخصم:</div>`;
+                    pendingOpp.forEach(ans => {
                         html += `
-                            <div class="ans-item" style="flex-direction:column; align-items:stretch; margin-bottom:12px;">
+                            <div class="ans-item" style="flex-direction:column; align-items:stretch;">
                                 <span>💬 "${escapeHtml(ans.text)}"</span>
                                 <div class="voting-buttons">
-                                    <button class="vote-btn vote-accept" onclick="voteAnswer('${escapeHtml(ans.text)}', 'accepted')">✅ صحيحة +1 نقطة</button>
+                                    <button class="vote-btn vote-accept" onclick="voteAnswer('${escapeHtml(ans.text)}', 'accepted')">✅ صحيحة (+1)</button>
                                     <button class="vote-btn vote-reject" onclick="voteAnswer('${escapeHtml(ans.text)}', 'rejected')">❌ خاطئة</button>
                                 </div>
                             </div>
                         `;
                     });
-                    evaluationContainer.innerHTML = html;
+                    evaluationDiv.innerHTML = html;
                 } else {
-                    evaluationContainer.innerHTML = "<div>✅ جميع إجابات الخصم تم تقييمها! اضغط للسؤال التالي.</div>";
+                    evaluationDiv.innerHTML = "<div class='badge-light'>✅ تم تقييم جميع الإجابات. انتظر السؤال التالي.</div>";
                 }
-            } 
-            else if (data.timeLeft === 0 && myRole !== 'host') {
-                evaluationContainer.innerHTML = "<div class='badge-light'>⏳ جولة منتهية، المضيف يقوم بتقييم إجاباتك الآن ...</div>";
-            }
-            else {
-                // أثناء الوقت: لا تظهر واجهة التقييم
-                evaluationContainer.innerHTML = "<div class='badge-light'>⚡ بعد انتهاء الوقت سيتمكن المضيف من تقييم إجاباتك</div>";
-            }
-            
-            // التحكم في ظهور أزرار الجولة التالية والكتابة
-            if (data.timeLeft === 0) {
-                document.getElementById('action-area').classList.add('hidden');
+                // إظهار زر التالي للمضيف (host) فقط
                 if (myRole === 'host') document.getElementById('host-controls').classList.remove('hidden');
                 else document.getElementById('host-controls').classList.add('hidden');
+                document.getElementById('action-area').classList.add('hidden');
             } else {
+                evaluationDiv.innerHTML = "<div class='badge-light'>⏳ بعد انتهاء الوقت، قيّم إجابات خصمك.</div>";
                 document.getElementById('action-area').classList.remove('hidden');
                 document.getElementById('host-controls').classList.add('hidden');
                 if (myRole === 'host' && !timerInterval) startTimerSync();
@@ -569,46 +534,35 @@
 
     function renderMyLetters(letters) {
         const container = document.getElementById('my-letters');
-        if (!letters.length) { container.innerHTML = "<span>🎉 لا حروف متبقية! أنت الفائز 🎉</span>"; return; }
+        if (!letters.length) { container.innerHTML = "<span>🎉 فوز!</span>"; return; }
         container.innerHTML = letters.map(l => `<span class="letter-item my-letter-glow">${l}</span>`).join('');
     }
 
     function renderOppLetters(letters) {
         const container = document.getElementById('opp-letters');
-        if (!letters.length) { container.innerHTML = "<span>💀 الخصم بدون حروف 💀</span>"; return; }
+        if (!letters.length) { container.innerHTML = "<span>💀 انتهت حروفه</span>"; return; }
         container.innerHTML = letters.map(l => `<span class="letter-item opp-letter">${l}</span>`).join('');
     }
 
-    // دالة ذكية للتعرف على أول حرف والتحقق من وجوده في حروف اللاعب
     function submitAns() {
         const text = document.getElementById('ansInput').value.trim();
-        if (!text) return alert("✏️ اكتب إجابة أولاً!");
-        
+        if (!text) return alert("✏️ اكتب إجابة!");
         const firstChar = text[0];
-        if (!firstChar) return alert("الإجابة لا يمكن أن تبدأ بحرف فارغ!");
         
-        // جلب حروف اللاعب الحالية من الفايربيز والتحقق
         db.ref(`rooms/${rId}/${myRole}L`).once('value', snap => {
             const myLetters = snap.val() || [];
             if (!myLetters.includes(firstChar)) {
-                return alert(`⚠️ إجابتك تبدأ بحرف "${firstChar}" لكن هذا الحرف ليس ضمن حروفك المتاحة!\nحروفك الحالية: ${myLetters.join(' - ')}`);
+                return alert(`⚠️ الإجابة يجب أن تبدأ بأحد حروفك: ${myLetters.join(' - ')}`);
             }
-            // التحقق من عدم تكرار نفس الإجابة بنفس الحرف في نفس الجولة (اختياري لكن لا مانع)
             db.ref(`rooms/${rId}/ans/${myRole}`).once('value', snapAns => {
                 let list = snapAns.val() || [];
-                // إضافة الإجابة الجديدة
                 list.push({ text: text, letter: firstChar, status: 'pending' });
                 db.ref(`rooms/${rId}/ans/${myRole}`).set(list);
                 document.getElementById('ansInput').value = "";
-                // وميض تأكيد سريع
-                const btn = document.querySelector('.btn-send');
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => btn.style.transform = '', 150);
             });
         });
     }
 
-    // دالة التصويت من قبل المضيف (host)
     window.voteAnswer = function(text, verdict) {
         db.ref(`rooms/${rId}/ans/${oppRole}`).once('value', snap => {
             let list = snap.val() || [];
@@ -627,7 +581,7 @@
                     }
                 });
             }
-            db.ref(`rooms/${rId}/ans/${oppRole}`).set(list).then(() => {});
+            db.ref(`rooms/${rId}/ans/${oppRole}`).set(list);
         });
     };
 
@@ -649,25 +603,19 @@
             timeLeft: 30,
             q: newQuestion,
             ans: { host: [], guest: [] }
-        }).then(() => {
-            startTimerSync();
-        });
+        }).then(() => startTimerSync());
     }
 
     function showResult(isWinner) {
         if (timerInterval) clearInterval(timerInterval);
         const overlay = document.getElementById('result-overlay');
-        const winDiv = document.getElementById('win-ui');
-        const loseDiv = document.getElementById('lose-ui');
-        winDiv.classList.add('hidden');
-        loseDiv.classList.add('hidden');
-        if (isWinner) winDiv.classList.remove('hidden');
-        else loseDiv.classList.remove('hidden');
+        document.getElementById('win-ui').classList.toggle('hidden', !isWinner);
+        document.getElementById('lose-ui').classList.toggle('hidden', isWinner);
         overlay.classList.remove('hidden');
     }
 
     function copyCode() {
-        if (rId) { navigator.clipboard.writeText(rId); alert("📋 تم نسخ كود الغرفة: " + rId); }
+        if (rId) { navigator.clipboard.writeText(rId); alert("تم نسخ الكود: " + rId); }
     }
     
     function escapeHtml(str) {
