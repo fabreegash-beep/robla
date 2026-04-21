@@ -264,7 +264,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: rotate 30s linear infinite;
             transition: background 0.3s ease;
         }
 
@@ -274,12 +273,7 @@
 
         .timer-ring.danger {
             background: conic-gradient(var(--neon-pink) 0deg, transparent 0deg);
-            animation: rotate 1s linear infinite, shake 0.5s ease-in-out infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            animation: shake 0.5s ease-in-out infinite;
         }
 
         @keyframes shake {
@@ -319,7 +313,7 @@
             50% { transform: scale(1.1); }
         }
 
-        /* ===== صندوق السؤال ===== */
+        /* ===== صندوق السؤال - ثابت بدون وميض ===== */
         .question-box {
             background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
             padding: 25px 20px;
@@ -333,12 +327,7 @@
                 inset 0 2px 0 rgba(255, 255, 255, 0.2);
             position: relative;
             overflow: hidden;
-            animation: questionSlide 0.5s ease-out;
-        }
-
-        @keyframes questionSlide {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
+            transition: all 0.3s ease;
         }
 
         .question-box::before {
@@ -905,8 +894,9 @@
             </div>
         </div>
 
-        <div id="question-area" class="status-message status-waiting">
-            جاري تحميل السؤال...
+        <!-- منطقة السؤال - ثابتة بدون وميض -->
+        <div id="question-area" class="question-box">
+            📢 جاري تحميل السؤال...
         </div>
 
         <div id="game-elements" class="hidden">
@@ -974,28 +964,183 @@
     <script>
         // ===== بنك الأسئلة =====
         const QUESTIONS_BANK = [
-            "واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😱",
-            "واش أول حاجةديرها كي ينقطع الضوء؟ 💡",
-            "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤥",
-            "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑",
-            "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬",
-            "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸",
-            "وش هو أتعس فطور فالعالم؟ 🥲",
-            "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂",
-            "وش الحاجة لي تخليك تضحك بلا سبب؟ 😄",
-            "إذا تشوف روحك في المنام، وش تقول لنفسك؟ 🪞",
-            "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡",
-            "وش الحاجة لي دايماً تكون 'غالية بزاف'؟ 💰",
-            "وش أكثر حاجة تتقال في الأعراس؟ 💃",
-            "وش الحاجة لي نكذبو فيها كامل؟ 🤥",
-            "وش الحاجة لي كل واحد يقول 'غدوة نبدأ فيها' وما يبدأش؟ 😴",
-            "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻",
-            "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒",
-            "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫",
-            "وش الحاجة لي كل واحد يدير فيها روحو فاهم؟ 😏",
-            "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒",
-            "إذا صاحبك تبدل وصار غني، وش أول حاجة تطلبها منو؟ 💎"
-        ];
+    "واش الحاجة لي إذا طاحت في الدار كامل يخافو منها؟ 😅",
+    "واش أول حاجة ديرها كي ينقطع الضوء؟ 💡",
+    "وش هو أغرب عذر سمعتو باش واحد ما يخدمش؟ 🤣",
+    "إذا تصبح رئيس نهار واحد، وش أول قرار غبي تديرو؟ 👑",
+    "وش الحاجة لي تقولها قدام الناس وتندم عليها بعد؟ 😬",
+    "إذا صاحبك يطلب منك 1000 دج وما يرجعهمش، وش تدير؟ 💸",
+    "وش هو أتعس فطور فالعالم؟ 🥲",
+    "إذا يدوك للعرس غصب عليك، وش تدير باش تهرب؟ 😂",
+    "وش الحاجة لي تخليك تضحك بلا سبب؟",
+    "إذا تشوف روحك في المنام، وش تقول لنفسك؟ 😵",
+    "وش أكثر كلمة يقولها الجزائري كي يتعصب؟ 😡",
+    "وش الحاجة لي دايماً تكون \"غالية بزاف\"؟ 💰",
+    "وش أكثر حاجة تتقال في الأعراس؟ 💃",
+    "وش الحاجة لي نكذبو فيها كامل؟ 🤥",
+    "وش الحاجة لي كل واحد يقول \"غدوة نبدأ فيها\" وما يبدأش؟ 😴",
+    "وش أكثر حاجة تخاف منها كي تكون صغير؟ 👻",
+    "وش الحاجة لي تشريها وما تستعملهاش؟ 🛒",
+    "وش أكثر جملة يقولها الأستاذ؟ 🧑‍🏫",
+    "وش الحاجة لي كل واحد يدير فيها روحو فاهم؟ 😏",
+    "إذا لازم تعيش مع حيوان، وش تختار؟ 🐒",
+    "إذا صاحبك تبدل وصار غني، وش أول حاجة تطلبها منو؟ 😂",
+    "وش الحاجة لي ما تقبلش تديرها قدام الناس؟ 🙈",
+    "إذا يعطيولك مليار باش تدير حاجة محرجة، وش هي؟ 💰",
+    "وش الحاجة لي لو كانت إنسان، تكرهها؟ 😆",
+    "إذا تقدر تمسح موقف محرج من حياتك، وش هو؟",
+    "وش الحاجة لي دايماً تضيعها؟ 🔍",
+    "وش أكثر حاجة تقول \"آخر مرة\" وتعاود تديرها؟ 🤦‍♂️",
+    "إذا تكون غير مرئي نهار كامل، وش تدير؟ 👻",
+    "وش الحاجة لي لو يرجع بيك الزمن ما تديرهاش؟ 😅",
+    "حاجة تاكلها بزاف؟ 🍟",
+    "اسم يخوف؟ 😨",
+    "مكان تكره تروحلو؟",
+    "صوت مزعج؟ 🔊",
+    "حيوان غبي؟ 🐔",
+    "حاجة تضيع بسرعة؟",
+    "كلمة تقولها بزاف؟",
+    "حاجة تحبها سرًا؟ 😏",
+    "حاجة تندم عليها؟",
+    "وش الحاجة لي تديرها وحدك وتستحي تقولها؟ 😏",
+    "إذا واحد قالك \"نحبك\" بالغلط، وش ترد؟ 🤣",
+    "وش أسوأ هدية ممكن تجيك؟ 🎁",
+    "إذا تقدر تبدل اسمك، وش تختار؟ 😆",
+    "وش الحاجة لي تقولها كي تطيح في موقف محرج؟ 😬",
+    "وش أكثر حاجة تديرها كي تكون وحدك فالدار؟ 😂",
+    "إذا صاحبك يطيح قدام الناس، وش تدير؟ (تعاون ولا تضحك؟) 🤣",
+    "وش الحاجة لي دايماً تقول \"ماشي أنا\" وهي أنت؟ 😅",
+    "وش أكثر حاجة تزعفك بلا سبب؟ 😤",
+    "إذا لازم تاكل حاجة وحدة طول حياتك، وش تختار؟ 🍔",
+    "وش أكثر حاجة تصرا في طابور (لاشان)؟ 😑",
+    "وش الجملة لي دايماً تسمعها من الأم؟ 👩",
+    "وش الحاجة لي تقولها كي تشوف الفاتورة؟ 💸",
+    "وش أكثر كلمة تتقال في الكورة؟ ⚽",
+    "وش الحاجة لي دايماً تضيع في الدار؟ 🔑",
+    "وش أكثر حاجة تندم عليها كي تخرج؟ 😅",
+    "وش الحاجة لي كامل يقولوا \"غير دقيقتين\" وتطول ساعة؟ ⏳",
+    "وش الحاجة لي تبان رخيصة بصح ماشي؟ 😏",
+    "وش أكثر حاجة تصرا في الأعراس وتكون محرجة؟ 💃",
+    "وش الحاجة لي كامل يعرفوها وما يديرها حتى واحد؟ 🤣",
+    "وش الحاجة لي تقولها في وجه واحد وتغلط فيها من وراه؟ 😏",
+    "إذا واحد يعطيك سر خطير، وش تدير؟ 🤫",
+    "وش الحاجة لي دايماً تغلط فيها وتلوم غيرك؟ 🤣",
+    "إذا تقدر تكذب مرة وما تتكشفش، وش تقول؟ 😈",
+    "وش الحاجة لي تخاف يقولوه عليك الناس؟ 😅",
+    "وش أكثر موقف خلاك تقول \"يا ريت الأرض تبلعني\"؟ 😂",
+    "إذا تقدر ترجع لور، وش موقف تبدلو؟",
+    "وش الحاجة لي تحبها بصح تستحي تقول؟ 🙈",
+    "إذا واحد فضحك قدام الناس، وش رد فعلك؟ 😤",
+    "حاجة تخوف فالليل؟ 🌙",
+    "حاجة تضحكك؟ 😂",
+    "شخص تعرفه كذاب؟ 😏",
+    "حاجة مملة؟ 😴",
+    "حاجة لذيذة؟ 😋",
+    "صوت تكرهو؟ 🔊",
+    "تطبيق تستعمله بزاف؟ 📱",
+    "كلمة جزائرية مشهورة؟ 🇩🇿",
+    "حاجة ما تفهمهاش؟ 🤯",
+    "حاجة دايماً تنساها؟",
+    "وش أول حاجة تديرها كي تطيح وحدك وما يشوفك حتى واحد؟ 😅",
+    "إذا تسلّم على واحد بالغلط (ما تعرفوش)، وش تدير؟ 🤦‍♂️",
+    "وش أسوأ موقف صرالك قدام بنت/قدام ناس؟ 😬",
+    "إذا تلفونك يرن بصوت عالي فمكان هادئ، وش تعمل؟ 📱",
+    "وش الحاجة لي دايماً توقعلك في الوقت الغلط؟ 😭",
+    "إذا واحد شافك تغلط، وش تقول باش تغطي؟ 😏",
+    "وش الحاجة لي درتها وقلت بعدها \"علاش درت هكا؟\" 😂",
+    "إذا تسمع اسمك وما يكونوش يقصدوك، وش تدير؟ 😅",
+    "وش أغبى حاجة صدقتها؟ 🤣",
+    "وش موقف خلاك تهرب بلا ما تقول حتى كلمة؟ 🏃‍♂️",
+    "إذا الحيطان تهدر، وش أول سر تقولوه عليك؟ 😳",
+    "إذا المخدة تقدر تحكي، وش راح تفضح؟ 😴",
+    "إذا باب الدار يتكلم، وش يقول على أصحابو؟ 😂",
+    "إذا الكلب تاعك يفهمك، وش أول حاجة تقولها له؟ 🐶",
+    "إذا الدراهم تهدر، وش راح تقول عليك؟ 💸",
+    "إذا المراية تقول الحقيقة، وش راح تسمع؟ 😆",
+    "إذا النعاس كان إنسان، وش راح يكون اسمو؟ 😴",
+    "إذا الكرسي يغضب، وش السبب؟ 🤣",
+    "إذا الشيفون (الممسحة) تحكي، وش تشكي؟ 😂",
+    "إذا التلفاز يمل منك، وش يقول؟ 📺",
+    "وش الحاجة لي دايماً تقول \"مش أنا\" هي أنت؟ 😏",
+    "إذا واحد يعرف سر عليك، وش تخاف يقول؟ 😬",
+    "وش الحاجة لي تحبها بصح ما تعترفش بيها؟ 🙈",
+    "إذا لازم تعتذر لواحد، وش أسوأ طريقة تعتذر بيها؟ 😂",
+    "وش الحاجة لي ديرها وتقول \"آخر مرة\"؟ 🤦‍♂️",
+    "إذا واحد خيرك بين صحابك، وش تدير؟ 😅",
+    "وش الحاجة لي تحب تغيّرها في روحك؟",
+    "إذا واحد يقلدك، وش أول حاجة يبان فيها؟ 😆",
+    "وش الحاجة لي تقولها كي تكذب؟ 🤥",
+    "وش الحاجة لي تخاف تصرا لك قدام الناس؟ 😳",
+    "حاجة تزعفك؟ 😤",
+    "حاجة تحبها بزاف؟ ❤️",
+    "اسم غريب؟",
+    "مكان مخيف؟ 👻",
+    "حاجة مملة؟ 😴",
+    "حاجة دايماً تضيع؟ 🔑",
+    "صوت مزعج؟ 🔊",
+    "حاجة تاكلها فالليل؟ 🌙",
+    "كلمة تكرهها؟",
+    "حاجة تحبها سرًا؟",
+    "إذا تعيش نهار كامل بلا كذب، وش يصرا؟ 😂",
+    "إذا كلش تقولو يتحقق، وش أول كلمة تقولها؟ 😈",
+    "إذا تتحول لحيوان نهار، وش تختار؟ 🐒",
+    "إذا تكون مدير على صحابك، وش أول قانون تدير؟ 🤣",
+    "وش الحاجة لي دايماً تقول عليها \"غالي\" وبعد تشريها؟ 😏",
+    "إذا تلفونك يحكي، وش أول حاجة يشكي منك؟ 📱",
+    "وش الحاجة لي دايماً تضيعها وتلقى روحك تقلب الدار كامل؟ 🔍",
+    "إذا يعطوك فرصة تمحي واحد من صحابك من حياتك نهار، وش تدير؟ 😂",
+    "وش الحاجة لي دايماً تقولها كي تتأخر؟ ⏰",
+    "وش أسوأ موقف صرالك في القسم؟ 🧑‍🏫",
+    "إذا واحد يسقسيك سؤال محرج قدام الناس، وش ترد؟ 😬",
+    "وش الحاجة لي دايماً تندم كي تديرها؟ 🤦‍♂️",
+    "إذا تكون غني بزاف، وش أول حاجة غبية تشريها؟ 💰",
+    "وش الحاجة لي دايماً تقول \"ماشي مهم\" وهي مهمة؟ 😅",
+    "وش الحاجة لي تضحكك كي تشوفها في الناس؟ 😂",
+    "إذا صاحبك عيطلك 3 مرات وما رديتش، وش تقول كي ترجعلو؟ 📞",
+    "وش الحاجة لي دايماً تتأجل؟ ⏳",
+    "إذا لازم تختار بين النوم ولا الماكلة، وش تختار؟ 😴🍔",
+    "وش أكثر حاجة تديرها كي تكون مقلق؟ 😤",
+    "وش الحاجة لي تخليك تقول \"حياتي كارثة\"؟ 😭",
+    "إذا واحد يغلط في اسمك، وش تدير؟ 😆",
+    "وش الحاجة لي دايماً تقول \"بصح غير اليوم\"؟ 🤣",
+    "إذا تكون أستاذ نهار واحد، وش تدير في التلاميذ؟ 🧑‍🏫",
+    "وش الحاجة لي تكرهها بصح تديرها؟ 😒",
+    "وش أكثر حاجة تخليك تضحك وانت وحدك؟ 😂",
+    "إذا يعطوك مليون باش تقول سر، وش تدير؟ 💸",
+    "وش الحاجة لي دايماً توقعلك قدام الناس؟ 😅",
+    "وش الحاجة لي تقولها كي تغلط وتحب تهرب؟ 🏃‍♂️",
+    "إذا واحد يحرجك قدام الناس، وش رد فعلك؟ 😤",
+    "وش الحاجة لي تقولها كي تكذب؟ 🤥",
+    "إذا لازم تعيش بلا واتساب، وش تدير؟ 📵",
+    "وش الحاجة لي دايماً تقول \"عادي\" وهي ماشي عادي؟ 😬",
+    "إذا تشوف واحد يطيح، أول رد فعل؟ 😂",
+    "وش الحاجة لي دايماً تتفشل منها؟ 😳",
+    "وش الحاجة لي تحبها وما تحبش تعترف بيها؟ 🙈",
+    "إذا لازم تقول الحقيقة يوم كامل، وش يصرا؟ 😅",
+    "وش الحاجة لي دايماً تقول \"آخر مرة\"؟ 🤦‍♂️",
+    "إذا باب الدار يشوفك كل يوم، وش يقول عليك؟ 🚪",
+    "وش الحاجة لي دايماً تخليك تتأخر؟ ⏰",
+    "إذا تعيش بلا إنترنت نهار، وش تدير؟ 😭",
+    "وش الحاجة لي دايماً تقول \"غدوة\"؟ 😴",
+    "إذا واحد يكذب عليك وانت عارف، وش تدير؟ 😏",
+    "وش الحاجة لي دايماً تقولها كي تطيح؟ 😂",
+    "إذا تكون غير مرئي ساعة، وش تدير؟ 👻",
+    "وش الحاجة لي دايماً تندم عليها فالليل؟ 🌙",
+    "إذا يعطوك فرصة ترجع لور، وش تبدل؟ ⏳",
+    "وش الحاجة لي دايماً تقول \"ما عنديش الوقت\"؟ 😅",
+    "إذا صاحبك يطلب منك خدمة غبية، وش تدير؟ 🤣",
+    "وش الحاجة لي دايماً تنساها؟ 🤯",
+    "إذا لازم تعتذر، وش أغبى اعتذار تقولوه؟ 😂",
+    "وش الحاجة لي دايماً تقولها كي تربح؟ 😎",
+    "وش الحاجة لي تقولها كي تخسر؟ 😤",
+    "إذا واحد يقلدك، وش أول حاجة يبان فيها؟ 😆",
+    "وش الحاجة لي دايماً تقول \"علاش أنا؟\" 😭",
+    "إذا تعيش بلا إنترنت، وش تدير؟ 😭",
+    "إذا لازم تلبس نفس اللبسة عام كامل، وش تختار؟ 👕",
+    "إذا تقدر تسمع أفكار الناس، وش أول حاجة تدير؟ 😏",
+    "إذا واحد يقرا أفكارك، وش راح يهرب؟ 😂",
+    "إذا تكون مشهور، وش السبب الغبي لي خلاك مشهور؟ 🤣"
+];
 
         // ===== تهيئة Firebase =====
         const firebaseConfig = {
@@ -1012,8 +1157,9 @@
 
         // ===== متغيرات اللعبة =====
         let rId, myRole, oppRole, timerInterval = null;
+        let lastQuestionText = ""; // لتتبع السؤال الحالي ومنع التحديث غير الضروري
         const alphabet = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي";
-        const WIN_SCORE = 7; // ✅ تم تعديل شرط الفوز إلى 7 نقاط
+        const WIN_SCORE = 7;
 
         // ===== نظام الصوت =====
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1133,24 +1279,36 @@
             db.ref('rooms/' + rId).on('value', (snap) => {
                 const data = snap.val();
                 if (!data) return;
+                
                 updateScores(data.scores[myRole], data.scores[oppRole]);
                 document.getElementById('timer-display').innerText = data.timeLeft;
                 updateTimerStyle(data.timeLeft);
+                
                 if (data.status === 'waiting') {
                     document.getElementById('question-area').innerHTML = '⏳ <span class="loading-dots">بانتظار دخول الخصم</span>';
+                    document.getElementById('question-area').classList.add('status-waiting');
                     document.getElementById('game-elements').classList.add('hidden');
                     return;
                 }
+                
+                // تحديث السؤال فقط إذا تغير النص - هذا يمنع الوميض
+                if (data.q !== lastQuestionText) {
+                    lastQuestionText = data.q;
+                    const questionDiv = document.getElementById('question-area');
+                    questionDiv.innerHTML = '📢 ' + data.q;
+                    questionDiv.classList.remove('status-waiting');
+                    // تحديث بسيط ولطيف بدون حركة قوية
+                    questionDiv.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        if (questionDiv) questionDiv.style.transform = 'scale(1)';
+                    }, 150);
+                }
+                
                 document.getElementById('game-elements').classList.remove('hidden');
-                document.getElementById('question-area').innerHTML = '📢 ' + data.q;
-                const questionBox = document.getElementById('question-area');
-                questionBox.style.animation = 'none';
-                questionBox.offsetHeight;
-                questionBox.style.animation = 'questionSlide 0.5s ease-out';
                 renderMyLetters(data[myRole + 'L'] || []);
                 renderOppLetters(data[oppRole + 'L'] || []);
                 
-                // ✅ فحص الفوز بناءً على 7 نقاط
+                // فحص الفوز
                 if (data.scores[myRole] >= WIN_SCORE) showResult(true);
                 else if (data.scores[oppRole] >= WIN_SCORE) showResult(false);
                 
@@ -1164,20 +1322,36 @@
                     document.getElementById('voting-panel').innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">انتظار...</p>';
                     if (myRole === 'host') startTimerSync();
                 }
+                
                 const myAns = data.ans ? data.ans[myRole] : [];
                 if (myAns && myAns.length > 0) {
-                    document.getElementById('my-ans-list').innerHTML = myAns.map(a => `<div class="ans-item"><span class="ans-text">${a.text}</span><span class="ans-status">${a.status === 'accepted' ? '✅' : (a.status === 'rejected' ? '❌' : '⏳')}</span></div>`).join('');
+                    document.getElementById('my-ans-list').innerHTML = myAns.map(a => `<div class="ans-item"><span class="ans-text">${escapeHtml(a.text)}</span><span class="ans-status">${a.status === 'accepted' ? '✅' : (a.status === 'rejected' ? '❌' : '⏳')}</span></div>`).join('');
                 } else {
                     document.getElementById('my-ans-list').innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">لم تُرسل أي إجابة بعد...</p>';
                 }
             });
         }
+        
+        // دالة للحماية من XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         function updateScores(myScore, oppScore) {
             const myScoreEl = document.getElementById('my-score');
             const oppScoreEl = document.getElementById('opp-score');
-            if (myScoreEl.innerText != myScore) { myScoreEl.innerText = myScore; myScoreEl.classList.add('pop'); setTimeout(() => myScoreEl.classList.remove('pop'), 500); }
-            if (oppScoreEl.innerText != oppScore) { oppScoreEl.innerText = oppScore; oppScoreEl.classList.add('pop'); setTimeout(() => oppScoreEl.classList.remove('pop'), 500); }
+            if (myScoreEl.innerText != myScore) { 
+                myScoreEl.innerText = myScore; 
+                myScoreEl.classList.add('pop'); 
+                setTimeout(() => myScoreEl.classList.remove('pop'), 500); 
+            }
+            if (oppScoreEl.innerText != oppScore) { 
+                oppScoreEl.innerText = oppScore; 
+                oppScoreEl.classList.add('pop'); 
+                setTimeout(() => oppScoreEl.classList.remove('pop'), 500); 
+            }
         }
 
         function updateTimerStyle(timeLeft) {
@@ -1185,21 +1359,43 @@
             const ring = document.getElementById('timer-ring');
             container.classList.remove('warning', 'danger');
             ring.classList.remove('warning', 'danger');
-            if (timeLeft <= 10) { container.classList.add('danger'); ring.classList.add('danger'); if (timeLeft <= 5) playSound('tick'); }
-            else if (timeLeft <= 15) { container.classList.add('warning'); ring.classList.add('warning'); }
+            if (timeLeft <= 10) { 
+                container.classList.add('danger'); 
+                ring.classList.add('danger'); 
+                if (timeLeft <= 5) playSound('tick'); 
+            }
+            else if (timeLeft <= 15) { 
+                container.classList.add('warning'); 
+                ring.classList.add('warning'); 
+            }
         }
 
         function renderMyLetters(letters) {
             document.getElementById('my-letters').innerHTML = letters.map((l, i) => `<span class="letter-item" onclick="selectLetter('${l}', this)" style="animation-delay: ${i * 0.1}s">${l}</span>`).join('');
         }
 
-        function renderOppLetters(letters) { document.getElementById('opp-letters').innerHTML = '🤷 حروف الخصم: ' + (letters || []).join(' '); }
-        function selectLetter(l, el) { playSound('letterSelect'); document.querySelectorAll('#my-letters .letter-item').forEach(i => i.classList.remove('selected')); if (el) el.classList.add('selected'); }
-        function handleKeyPress(event) { if (event.key === 'Enter') submitAns(); }
+        function renderOppLetters(letters) { 
+            document.getElementById('opp-letters').innerHTML = '🤷 حروف الخصم: ' + (letters || []).join(' '); 
+        }
+        
+        function selectLetter(l, el) { 
+            playSound('letterSelect'); 
+            document.querySelectorAll('#my-letters .letter-item').forEach(i => i.classList.remove('selected')); 
+            if (el) el.classList.add('selected'); 
+        }
+        
+        function handleKeyPress(event) { 
+            if (event.key === 'Enter') submitAns(); 
+        }
 
         function submitAns() {
             const text = document.getElementById('ansInput').value.trim();
-            if (!text) { playSound('wrong'); document.getElementById('ansInput').classList.add('shake'); setTimeout(() => document.getElementById('ansInput').classList.remove('shake'), 500); return; }
+            if (!text) { 
+                playSound('wrong'); 
+                document.getElementById('ansInput').classList.add('shake'); 
+                setTimeout(() => document.getElementById('ansInput').classList.remove('shake'), 500); 
+                return; 
+            }
             const firstLetter = text[0];
             db.ref(`rooms/${rId}/${myRole}L`).once('value', snap => {
                 const letters = snap.val() || [];
@@ -1223,10 +1419,14 @@
         function renderVotingPanel(oppAnswers) {
             const container = document.getElementById('voting-panel');
             const pending = (oppAnswers || []).filter(a => a.status === 'pending');
-            if (pending.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">لا توجد إجابات للتصويت عليها...</p>'; return; }
+            if (pending.length === 0) { 
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">لا توجد إجابات للتصويت عليها...</p>'; 
+                return; 
+            }
             container.innerHTML = '<h4 style="color: var(--neon-gold); margin-bottom: 15px;">🗳️ قيم إجابات الخصم:</h4>';
             pending.forEach(ans => {
-                container.innerHTML += `<div class="ans-item" style="margin-bottom: 12px;"><span style="flex:1;">${ans.text}</span><button class="vote-btn vote-accept" onclick="vote('${ans.text.replace(/'/g, "\\'")}', 'accepted')">✅</button><button class="vote-btn vote-reject" onclick="vote('${ans.text.replace(/'/g, "\\'")}', 'rejected')">❌</button></div>`;
+                const escapedText = escapeHtml(ans.text);
+                container.innerHTML += `<div class="ans-item" style="margin-bottom: 12px;"><span style="flex:1;">${escapedText}</span><button class="vote-btn vote-accept" onclick="vote('${escapedText.replace(/'/g, "\\'")}', 'accepted')">✅</button><button class="vote-btn vote-reject" onclick="vote('${escapedText.replace(/'/g, "\\'")}', 'rejected')">❌</button></div>`;
             });
         }
 
@@ -1258,7 +1458,12 @@
 
         function nextRound() {
             playSound('click');
-            db.ref('rooms/' + rId).update({ timeLeft: 30, q: QUESTIONS_BANK[Math.floor(Math.random() * QUESTIONS_BANK.length)], ans: { host: [], guest: [] } });
+            lastQuestionText = ""; // إعادة تعيين لتحديث السؤال في الجولة التالية
+            db.ref('rooms/' + rId).update({ 
+                timeLeft: 30, 
+                q: QUESTIONS_BANK[Math.floor(Math.random() * QUESTIONS_BANK.length)], 
+                ans: { host: [], guest: [] } 
+            });
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             playSound('correct');
         }
